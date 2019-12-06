@@ -15,6 +15,7 @@ slim = tf.contrib.slim
 batch_size_vaihingen=2
 image_train_size = [448, 448]
 num_epochs = 150000 ## eigentlich num_iterations, aber tensorflow braucht(e) num_epochs
+
 tfrecords_filename_vaihingen = '/media/Raid/matthias/tensorflow/PIA2019/vaihingen_w_dsm.tfrecords'
 
 name = 'PIA/vaihingen_FOR_dsm_190711_DLBox_wd0_09'
