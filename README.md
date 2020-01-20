@@ -65,4 +65,17 @@ tfrecords_filename_vaihingen = '/media/Raid/matthias/tensorflow/PIA2019/vaihinge
 
 ### Evaluation
 
-## Requirements
+```Python
+test_data = '/media/Raid/matthias/tensorflow/PIA2019/eval/vaihingen_test.txt' # subset of images defining test data
+
+img_dir = '/media/Raid/Datasets/Vaihingen/top/' # image folder
+dsm_dir = '/media/Raid/Datasets/Vaihingen/dsm/' # DSM folder
+lbl_dir = '/media/Raid/Datasets/Vaihingen/ISPRS_semantic_labeling_Vaihingen_ground_truth_COMPLETE/' # ground truth folder
+model_dir = '/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/' # checkpoints
+```
+
+In loop:
+
+```Python
+writedir = "/media/Raid/matthias/tensorflow/PIA2019/eval/results_train/"
+```
