@@ -36,6 +36,7 @@ setuptools.setup(
         # - python deep learning packages -
         "tensorflow==1.*"
         "keras==2.2.5"
+        # - python evaluation packages -
         # "pyqt==4.11.4"
         "numpy"
         "matplotlib"
