@@ -1,4 +1,4 @@
-import dldawn.config.utils
+import dldawn.config.config_utils
 import dldawn.plugin
 
 import glob
@@ -29,7 +29,7 @@ def get_external_scripts():
     regex = re.compile('.*dldawn-([^ .]+)$')
     paths = []
     scripts = {}
-    paths.append(dldawn.config.utils.get_scripts_folder())
+    paths.append(dldawn.config.config_utils.get_scripts_folder())
     paths += os.environ["PATH"].split(":")
     for path in paths:
         for script in glob.glob(os.path.join(path, "dldawn-*")):

@@ -28,6 +28,7 @@ Cli
 """
 
 import dldawn.commands
+import dldawn.config.settings_utils
 
 import difflib
 import logging
@@ -149,5 +150,7 @@ def run(
     )
     logger = logging.getLogger('default')
     logger.debug("Plattform '{0}' detected.".format(sys.platform))
+
+    dldawn.config.settings_utils.get_configuration()
 
     print("HURRA")
