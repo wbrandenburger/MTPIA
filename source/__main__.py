@@ -5,21 +5,31 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import __init__
-import hello_train
 import config.settings
 
-import sys
 import click
 import logging
+import importlib
+import os
+import sys
 
 #   settings ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
+_TASK_DIR = "tasks"
+_DEFAULT_TASK = "default"
+
 logger = logging.getLogger("main")
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_main_task():
-    return ["hello", "data"]
+def get_main_task(path):
+    
+    file_list = [os.path.splitext(f)[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+
+    if file_list == list():
+        raise ValueError("The predefined task folder seems to be empty.")
+
+    return file_list
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -38,21 +48,29 @@ def get_main_task():
 @click.option(
     "-t",
     "--task",
-    help="Execute the specified task (default:{0})".format(get_main_task()[0]),
-    type=click.Choice([*get_main_task()]),
-    default=get_main_task()[0]
+    help="Execute the specified task (default: {0})".format(_DEFAULT_TASK),
+    type=click.Choice([*get_main_task(os.path.join(os.path.dirname(__file__), _TASK_DIR))]), # @todo[to change]: folder "tasks"
+    default=_DEFAULT_TASK # @todo[to change]: default task "default"
 )
 def cli(
-    file,
-    task
+        file,
+        task
     ):
     """Read general settings file and execute specified task."""
 
     # read general settings file and assign content to global settings object
     config.settings.get_settings(file)
+ 
+    # get the specified task and imort it as module
+    get_main_task(os.path.join(os.path.dirname(__file__), _TASK_DIR))
 
-    print(config.settings._SETTINGS)
+    module_string = "{0}.{1}".format(_TASK_DIR, task)
+    logger.debug("Import task module '{0}'".format(module_string))
+    task_module = importlib.import_module(module_string)
 
+    # call task's main routine
+    logger.debug("Call the main routine from task module '{0}'".format(module_string))
+    task_module.main()
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
