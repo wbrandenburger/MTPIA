@@ -38,7 +38,7 @@ def convert_annotation_4_classes(annotation_path):
 
 
 def read_tfrecord_and_decode_into_image_annotation_pair_tensors(tfrecord_filenames_queue):
-    """Return image/annotation tensors that are created by reading tfrecord file.
+    """Return image/annotation tensors that are created by reading tfrecord file.git d
     The function accepts tfrecord filenames queue as an input which is usually
     can be created using tf.train.string_input_producer() where filename
     is specified with desired number of epochs. This function takes queue

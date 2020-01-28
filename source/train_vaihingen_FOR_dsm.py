@@ -42,13 +42,15 @@ dsm_vaihingen =  tf.image.per_image_standardization(data_vaihingen[:,:,3:4])
 
 
 ##### vaihingen
-                                             
-image_batch_vaihingen, annotation_batch_vaihingen, dsm_batch_vaihingen = tf.train.shuffle_batch( 
-                                             [image_vaihingen, annotation_vaihingen, dsm_vaihingen],
-                                             batch_size=batch_size_vaihingen,
-                                             capacity=64,
-                                             num_threads=16,
-                                             min_after_dequeue=32)
+# Create batches of 'batch size'  images, labels and dsm by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
+# @todo[generalize]:
+image_batch_vaihingen, annotation_batch_vaihingen, dsm_batch_vaihingen = tf.train.shuffle_batch(
+    [image_vaihingen, annotation_vaihingen, dsm_vaihingen],
+    batch_size=batch_size_vaihingen,
+    capacity=64,
+    min_after_dequeue=32,
+    num_threads=16
+)
                                              
 with tf.variable_scope("net"):
   pred_vaihingen, argmax_vaihingen, reg_vaihingen = tiramisu56(image_batch_vaihingen)

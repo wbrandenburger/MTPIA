@@ -4,10 +4,9 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+import __init__
 import config.settings
 import utils.format
-
-import logging
 
 import tensorflow as tf
 import numpy as np
@@ -18,11 +17,9 @@ import matplotlib.pyplot as plt
 # ---------------------------------------------------------------------------
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
-logger = logging.getLogger("task:train-decomposition")
-
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def main():
     # print user defined settings
-    logger.debug("Print user defined settings")
+    __init__._logger.debug("Print user defined settings")
     utils.format.print_data(config.settings._SETTINGS)

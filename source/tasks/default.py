@@ -4,10 +4,9 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+import __init__
 import config.settings
 import utils.format
-
-import logging
 
 #   settings ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -18,5 +17,5 @@ logger = logging.getLogger("task:default")
 def main():
 
     # print user defined settings
-    logger.debug("Print user defined settings")
+    __init__._logger.debug("Print user defined settings")
     utils.format.print_data(config.settings._SETTINGS)

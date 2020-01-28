@@ -18,8 +18,6 @@ import sys
 _TASK_DIR = "tasks"
 _DEFAULT_TASK = "default"
 
-logger = logging.getLogger("main")
-
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_main_task(path):
@@ -65,11 +63,11 @@ def cli(
     get_main_task(os.path.join(os.path.dirname(__file__), _TASK_DIR))
 
     module_string = "{0}.{1}".format(_TASK_DIR, task)
-    logger.debug("Import task module '{0}'".format(module_string))
+    __init__._logger.debug("Import task module '{0}'".format(module_string))
     task_module = importlib.import_module(module_string)
 
     # call task's main routine
-    logger.debug("Call the main routine from task module '{0}'".format(module_string))
+    __init__._logger.debug("Call the main routine from task module '{0}'".format(module_string))
     task_module.main()
 
 #   function ----------------------------------------------------------------
@@ -78,8 +76,8 @@ if __name__ == "__main__":
     """Main"""
     
     # log all retrieved arguments
-    logger.debug("Number of arguments {0}:".format(len(sys.argv)))
-    logger.debug("CLI-Arguments are: {0}".format(str(sys.argv)))
+    __init__._logger.debug("Number of arguments {0}:".format(len(sys.argv)))
+    __init__._logger.debug("CLI-Arguments are: {0}".format(str(sys.argv)))
 
     # call default command line interface
     cli()
