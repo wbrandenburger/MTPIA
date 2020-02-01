@@ -44,7 +44,10 @@ def print_list(data):
     :type  data: list
     """
     for item in data:
-        print(item)
+        if isinstance(item, dict):
+            print_data(item)
+        else:
+            print(item)
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -62,4 +65,5 @@ def print_table(data):
     for line in data:
         print("| " + " | ".join("{:{}}".format(x, col_width[i])
                                 for i, x in enumerate(line)) + " |")
+    print("")
 

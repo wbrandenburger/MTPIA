@@ -12,6 +12,7 @@ import os
 #   settings ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 _SETTINGS = dict()
+_DATA = dict()
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -23,7 +24,7 @@ def get_settings(path):
     :param path: Path of genereal settings file
     :type path: str
     """
-    global _SETTINGS
+    global _SETTINGS, _DATA
     
     # if general settings file does not exist raise error
     if not os.path.isfile(path):

@@ -11,13 +11,6 @@ import tensorflow as tf
 import os
 import random
 
-# Helper functions for defining tf types
-def _bytes_feature(value):
-    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
-
-def _int64_feature(value):
-    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
-    
 def convert_annotation_4_classes(annotation_path):
     """Return annotation array containing categories instead of
     classes
@@ -37,17 +30,19 @@ def convert_annotation_4_classes(annotation_path):
     return annotation
 
 
-def read_tfrecord_and_decode_into_image_annotation_pair_tensors(tfrecord_filenames_queue):
-    """Return image/annotation tensors that are created by reading tfrecord file.git d
+def read_tfrecord_and_decode_into_image_annotation_pair_tensors(path):
+    """Return image/annotation tensors that are created by reading tfrecord file.
+
     The function accepts tfrecord filenames queue as an input which is usually
-    can be created using tf.train.string_input_producer() where filename
+    created using tf.train.string_input_producer() where filename
     is specified with desired number of epochs. This function takes queue
     produced by aforemention tf.train.string_input_producer() and defines
     tensors converted from raw binary representations into
     reshaped image/annotation tensors.
+    
     Parameters
     ----------
-    tfrecord_filenames_queue : tfrecord filename queue
+    path : tfrecord filename queue
         String queue object from tf.train.string_input_producer()
     
     Returns
@@ -92,12 +87,14 @@ def read_tfrecord_and_decode_into_image_annotation_pair_tensors(tfrecord_filenam
     
 def read_tfrecord_and_decode_into_image_annotation_pair_tensors_vaihingen_dsm(tfrecord_filenames_queue):
     """Return image/annotation tensors that are created by reading tfrecord file.
+
     The function accepts tfrecord filenames queue as an input which is usually
     can be created using tf.train.string_input_producer() where filename
     is specified with desired number of epochs. This function takes queue
     produced by aforemention tf.train.string_input_producer() and defines
     tensors converted from raw binary representations into
     reshaped image/annotation tensors.
+
     Parameters
     ----------
     tfrecord_filenames_queue : tfrecord filename queue

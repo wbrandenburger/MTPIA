@@ -1,21 +1,18 @@
 # ===========================================================================
-#   default.py --------------------------------------------------------------
+#   data.py -----------------------------------------------------------------
 # ===========================================================================
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import __init__
-import config.settings
-import utils.format
+import os
+import re
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def main():
+def get_files_of_folder(path):
+    return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
-    # print user defined settings
-    __init__._logger.debug("Print user defined settings")
-    utils.format.print_data(config.settings._SETTINGS)
+def get_file_pattern_of_folder(path, pattern):
+    regex_pattern = re.compile(pattern)
 
-
-
-
+    return [regex_pattern.match(f).group(1) for f in get_files_of_folder(path)]
