@@ -14,6 +14,9 @@ import os
 _SETTINGS = dict()
 _DATA = list() 
 
+_TASK_DIR = "tasks"
+_DEFAULT_TASK = "default"
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_settings(path):
