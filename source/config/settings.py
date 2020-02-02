@@ -45,4 +45,4 @@ def get_data(setting = "training"):
     global _DATA
     if setting in _SETTINGS.keys():
         with open(_SETTINGS[setting]) as f:
-            _DATA = [line.split() for line in f]
+            _DATA = line.split() for line in f
