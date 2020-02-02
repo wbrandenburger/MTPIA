@@ -15,7 +15,3 @@ def main():
     # print user defined settings
     __init__._logger.debug("Print user defined settings")
     utils.format.print_data(config.settings._SETTINGS)
-
-
-
-

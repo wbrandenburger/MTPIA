@@ -15,29 +15,23 @@ def main():
     
     test_tfrecords_utils()
 
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
-def print_training_data():
-    
-    import config.data
-    utils.format.print_data(config.data.get_file_pattern_of_folder(config.settings._SETTINGS["data-file-pattern-dir"], config.settings._SETTINGS["data-file-pattern"], ))
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def print_user_settings():
+def test_user_settings():
     """Print the user settings"""
     
-    # print user defined settings
-    __init__._logger.info("Print user defined settings")
+    # print user's defined settings
+    __init__._logger.info("Print user's defined settings")
     utils.format.print_data(config.settings._SETTINGS)
-    
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def print_user_data():
-    """Print information to user data"""
+def test_user_data():
+    """Print the user data"""
     
-    # print information to user data
-    __init__._logger.info("Print information to user data")
+    # print user's defined data
+    __init__._logger.info("Print user's defined data")
     utils.format.print_data(config.settings._DATA)
 
 #   function ----------------------------------------------------------------
@@ -46,10 +40,12 @@ def test_tfrecords_utils():
     """Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature
     """
 
+
+    __init__._logger.info("Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature")
+
     import tfext.tfrecords.utils
     import numpy as np
 
-    __init__._logger.info("Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature")
 
     # print the results of testing the shortcut functions
     print(tfext.tfrecords.utils._bytes_feature(b'test_string'))

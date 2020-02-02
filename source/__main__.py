@@ -57,25 +57,16 @@ def get_main_task(path):
     type=str,
     default= ""
 )
-@click.option(
-    "-d",
-    "--data",
-    help="Pass the trainings, test and validation of the specified setting.",
-    nargs=2, 
-    type=(str, str)
-)
 def cli(
         file,
         task,
         func,
-        data
     ):
     """Read general settings file and execute specified task."""
 
     # read general settings file and assign content to global settings object
     config.settings.get_settings(file)
  
-    print(data)
     # get the specified task and imort it as module
     get_main_task(os.path.join(os.path.dirname(__file__), _TASK_DIR))
 
@@ -89,6 +80,17 @@ def cli(
         task_module.main()
     else:
         __init__._logger.debug("Call '{0}' from task module '{1}'".format(module_string, func))
+
+        import re
+
+        task_funcs = [ f for f in dir(task_module) if re.compile("^test").match(f) ] 
+        if not func in task_funcs:
+            raise ValueError("Error: Invalid value for '-f' / '--func': invalid choice: {0}. (choose from {1})".format(
+                func, 
+                task_funcs
+                )
+            ) # @todo[generalize]: also in expmgmt
+
         task_func = getattr(task_module, func)
         task_func()
 
