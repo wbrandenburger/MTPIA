@@ -15,10 +15,10 @@ import re
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def stevedore_error_handler(manager, entrypoint, exception):
-    rsvis.__init__._logger.error(
+    dl_multi.__init__._logger.error(
         "Error while loading entrypoint [{0}]".format(entrypoint)
     ) # @log
-    rsvis.__init__._logger.error(exception) # @log
+    dl_multi.__init__._logger.error(exception) # @log
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
