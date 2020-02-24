@@ -37,12 +37,10 @@ def task_test_tfrecords_utils():
     """Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature
     """
 
-
-    dl_multi.__init__._logger.info("Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature")
-
     import dl_multi.tfext.tfrecords.utils
     import numpy as np
 
+    dl_multi.__init__._logger.info("Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature")
 
     # print the results of testing the shortcut functions
     print(dl_multi.tfext.tfrecords.utils._bytes_feature(b'test_string'))
