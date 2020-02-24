@@ -16,7 +16,7 @@ _DATA = list()
 
 _TASK_DIR = "tasks"
 _TASK_SPEC_NAME = "tasks"
-_TASK_DIR = "tasks"
+_TASK_PREFIX = "task_"
 _DEFAULT_TASK = "default"
 
 #   function ----------------------------------------------------------------
