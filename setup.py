@@ -38,14 +38,14 @@ setuptools.setup(
         "configparser>=3.0.0",
         "pyyaml>=3.12",
         "pandas",
-        # - python image processing packages -
-        # "opencv-python",
-        # "pillow",
-        # "tifffile",
-        # - python numerical analysis packages -
-        # "matplotlib",
-        # "numpy"
-        # "scipy"
+        # - optional packages -
+        "h5py",
+        "eventlet",
+        "flask-socketio",
+        "seaborn",
+        "ffmpeg",
+        #   imageio=2.1.2
+        "moviepy"
     ],
     python_requires=">=3",
     classifiers=[
