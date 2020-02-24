@@ -33,7 +33,7 @@ def get_settings(path):
     
     # if general settings file does not exist raise error
     if not os.path.isfile(path):
-        raise IOError("Settings file {0} with experiment settings does not exist".format(settings_file))
+        raise IOError("Settings file {0} with experiment settings does not exist".format(path))
     
     # read general settings file and assign content to global settings object
     dl_multi.__init__._logger.debug("Read settings file {0}:".format(path))

@@ -14,6 +14,14 @@ import re
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
+def stevedore_error_handler(manager, entrypoint, exception):
+    rsvis.__init__._logger.error(
+        "Error while loading entrypoint [{0}]".format(entrypoint)
+    ) # @log
+    rsvis.__init__._logger.error(exception) # @log
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def get_tasks():
     module = importlib.import_module("dl_multi.{0}".format(dl_multi.config.settings._TASK_DIR))
     path = os.path.dirname(module.__file__)
