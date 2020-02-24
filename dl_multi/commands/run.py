@@ -45,8 +45,8 @@ import sys
 )
 def cli(
         file,
+        task_set,
         task,
-        func,
     ):
     """Read general settings file and execute specified task."""
 
