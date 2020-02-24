@@ -54,7 +54,7 @@ def cli(
     dl_multi.config.settings.get_settings(file)
 
     # get the specified task and imort it as module
-    task_module = dl_multi.plugin.get_task_module(task)
+    task_module = dl_multi.plugin.get_task_module(task_set)
 
     # call task's main routine
     if not task:
