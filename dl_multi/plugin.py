@@ -4,8 +4,8 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import __init__
-import config.settings
+import dl_multi.__init__
+import dl_multi.config.settings
 
 import importlib
 import logging
@@ -15,7 +15,7 @@ import re
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_tasks():
-    module = importlib.import_module(config.settings._TASK_DIR)
+    module = importlib.import_module("dl_multi.{0}".format(dl_multi.config.settings._TASK_DIR))
     path = os.path.dirname(module.__file__)
     file_list = [os.path.splitext(f)[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and re.compile("[^__.+__$]").match(f)]
 
@@ -27,13 +27,16 @@ def get_tasks():
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_task_module(task):
-    module_name = "{0}.{1}".format(config.settings._TASK_DIR, task)
-    __init__._logger.debug("Import task module '{0}'".format(module_name))
+    module_name = "dl_multi.{0}.{1}".format(dl_multi.config.settings._TASK_DIR, task)
+    dl_multi.__init__._logger.debug("Import task module '{0}'".format(module_name))
     
     return (importlib.import_module(module_name), module_name)
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_module_functions(module, regex):
-    return [ f for f in dir(module) if re.compile(regex).match(f) ] 
-
+def get_module_functions(module):
+    task_list = list()
+    for task in dir(module):
+        if re.compile(dl_multi.config.settings._TASK_PREFIX).match(task):
+            task_list.append(task.replace(dl_multi.config.settings._TASK_PREFIX ,"",1))
+    return task_list

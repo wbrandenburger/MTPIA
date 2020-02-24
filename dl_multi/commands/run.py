@@ -4,9 +4,10 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import __init__
-import config.settings
-import plugin
+import dl_multi.__init__
+import dl_multi.config.settings
+import dl_multi.plugin
+import dl_multi.debug.exceptions
 
 import click
 import logging
@@ -30,18 +31,17 @@ import sys
     nargs=1
 )
 @click.option(
-    "-t",
-    "--task",
-    help="Execute the specified task (default: {0})".format(config.settings._DEFAULT_TASK),
-    type=click.Choice([*plugin.get_tasks()]), # @todo[to change]: folder "tasks"
-    default=config.settings._DEFAULT_TASK # @todo[to change]: default task "default"
+    "--task_set",
+    help="Execute a task from specified task set(default: {0})".format(dl_multi.config.settings._TASK_SPEC_NAME),
+    type=click.Choice([*dl_multi.plugin.get_tasks()]),
+    default=dl_multi.config.settings._TASK_SPEC_NAME
 )
 @click.option(
-    "-f",
-    "--func",
-    help="Execute the specified function (default: {0})".format(""),
+    "-t",
+    "--task",
+    help="Execute the specified task (default: {0})".format(""),
     type=str,
-    default= ""
+    default= dl_multi.config.settings._DEFAULT_TASK 
 )
 def cli(
         file,
@@ -51,25 +51,23 @@ def cli(
     """Read general settings file and execute specified task."""
 
     # read general settings file and assign content to global settings object
-    config.settings.get_settings(file)
+    dl_multi.config.settings.get_settings(file)
 
     # get the specified task and imort it as module
-    task_module = plugin.get_task_module(task)
+    task_module = dl_multi.plugin.get_task_module(task)
 
     # call task's main routine
-    if not func:
-        __init__._logger.debug("Call the main routine from task module '{0}'".format(task_module[0]))
+    if not task:
+        dl_multi.__init__._logger.debug("Call the default routine from task set '{0}'".format(task_module[0]))
         task_module[0].main()
     else:
-        __init__._logger.debug("Call '{0}' from task module '{1}'".format(task_module[0], func))
+        dl_multi.__init__._logger.debug("Call task '{0}' from set '{1}'".format(task_module[0], task))
 
-        task_funcs = plugin.get_module_functions(task_module[0], "^test")
-        if not func in task_funcs:
-            raise ValueError("Error: Invalid value for '-f' / '--func': invalid choice: {0}. (choose from {1})".format(
-                func, 
-                task_funcs
-                )
-            ) # @todo[generalize]: also in expmgmt
+        task_funcs = dl_multi.plugin.get_module_functions(task_module[0])
+        if not task in task_funcs:
+            raise dl_multi.debug.exceptions.ArgumentError(task, task_funcs) 
 
-        task_func = getattr(task_module[0], func)
+        task_func = getattr(task_module[0], 
+            "{}{}".format(dl_multi.config.settings._TASK_PREFIX, task)
+        )
         task_func()

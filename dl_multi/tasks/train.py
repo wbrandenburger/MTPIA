@@ -4,9 +4,9 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import __init__
-import config.settings
-import utils.format
+import dl_multi.__init__
+import dl_multi.config.settings
+import dl_multi.utils.format
 
 import tensorflow as tf
 import numpy as np
@@ -19,7 +19,8 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def main():
+def task_default():
+
     # print user defined settings
-    __init__._logger.debug("Print user defined settings")
-    utils.format.print_data(config.settings._SETTINGS)
+    dl_multi.__init__._logger.debug("Print user defined settings")
+    dl_multi.utils.format.print_data(dl_multi.config.settings._SETTINGS)

@@ -4,8 +4,8 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import __init__
-import utils.yaml
+import dl_multi.__init__
+import dl_multi.utils.yaml
 
 import os
 
@@ -14,6 +14,8 @@ import os
 _SETTINGS = dict()
 _DATA = list() 
 
+_TASK_DIR = "tasks"
+_TASK_SPEC_NAME = "tasks"
 _TASK_DIR = "tasks"
 _DEFAULT_TASK = "default"
 
@@ -34,8 +36,8 @@ def get_settings(path):
         raise IOError("Settings file {0} with experiment settings does not exist".format(settings_file))
     
     # read general settings file and assign content to global settings object
-    __init__._logger.debug("Read settings file {0}:".format(path))
-    _SETTINGS = utils.yaml.yaml_to_data(path, raise_exception=True)
+    dl_multi.__init__._logger.debug("Read settings file {0}:".format(path))
+    _SETTINGS = dl_multi.utils.yaml.yaml_to_data(path, raise_exception=True)
     
     get_data()
 
