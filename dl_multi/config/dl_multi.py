@@ -18,7 +18,7 @@ def set_cuda_properties(param):
     if not param:
         return
     
-    set_cuda_visible_devices(get_value(param["visible_devices"], None))
+    set_cuda_visible_devices(get_value(param, "visible_devices", None))
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
