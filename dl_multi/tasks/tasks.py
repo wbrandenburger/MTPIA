@@ -8,6 +8,7 @@ import dl_multi.__init__
 import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
+import dl_multi.tools.train
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -16,14 +17,21 @@ get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_default():
+    
+    
     task_print_user_settings()
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_train():
+    """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
-    )  
+    )
+
+    dl_multi.tools.train(
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
+    )
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
