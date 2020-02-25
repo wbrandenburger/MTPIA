@@ -17,8 +17,7 @@ get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_default():
-    
-    
+    """Default task of set 'tasks'"""
     task_print_user_settings()
 
 #   function ----------------------------------------------------------------
@@ -29,7 +28,7 @@ def task_train():
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.train(
+    dl_multi.tools.train.train(
         get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
     )
 
