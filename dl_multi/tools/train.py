@@ -1,13 +1,15 @@
-import tensorflow as tf
+
+
 import os
+import tensorflow as tf
 
+# from tf_records_vaihingen import read_tfrecord_and_decode_into_image_annotation_pair_tensors_vaihingen_dsm
+# from tiramisu56_vaihingen_FOR_dsm import tiramisu56
+# from augmentation import rnd_crop_rotate_90_with_flips_dsm
 
-# bei einzelner GPU '0', sonst z.B. [1,3]
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
-
-from tf_records_vaihingen import read_tfrecord_and_decode_into_image_annotation_pair_tensors_vaihingen_dsm
-from tiramisu56_vaihingen_FOR_dsm import tiramisu56
-from augmentation import rnd_crop_rotate_90_with_flips_dsm
+def train(param_train):
+  pass
+# if computation shall be done on single GPU ("0") or multiple GPU ([1,3])
 
 slim = tf.contrib.slim
 
