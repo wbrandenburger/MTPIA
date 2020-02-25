@@ -1,7 +1,9 @@
-
+# ===========================================================================
+#   train.py ----------------------------------------------------------------
+# ===========================================================================
 
 import os
-import tensorflow as tf
+#import tensorflow as tf
 
   # from tf_records_vaihingen import read_tfrecord_and_decode_into_image_annotation_pair_tensors_vaihingen_dsm
   # from tiramisu56_vaihingen_FOR_dsm import tiramisu56
