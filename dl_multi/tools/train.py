@@ -8,10 +8,7 @@ import tensorflow as tf
 # from augmentation import rnd_crop_rotate_90_with_flips_dsm
 
 def train(param_train):
-
-  
-
-  pass
+  print(param_train)
 # if computation shall be done on single GPU ("0") or multiple GPU ([1,3])
 
 slim = tf.contrib.slim
