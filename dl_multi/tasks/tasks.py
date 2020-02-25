@@ -21,6 +21,7 @@ def task_default():
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_train():
+    print("huhu")
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS["param_cuda"], dict())
     )  
