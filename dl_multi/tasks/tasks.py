@@ -6,6 +6,7 @@
 # ---------------------------------------------------------------------------
 import dl_multi.__init__
 import dl_multi.config.settings
+import dl_multi.config.dl_multi
 import dl_multi.utils.format
 
 #   function ----------------------------------------------------------------
@@ -23,7 +24,7 @@ def task_train():
     dl_multi.config.settings.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS["param_cuda"], dict())
     )  
-    
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_print_user_settings():
