@@ -11,23 +11,23 @@ import tensorflow as tf
 import os
 import random
 
-def convert_annotation_4_classes(annotation_path):
-    """Return annotation array containing categories instead of
-    classes
-    Parameters
-    ----------
-    annotation_path : string
-        filename of annotation file to convert
+# def convert_annotation_4_classes(annotation_path):
+#     """Return annotation array containing categories instead of
+#     classes
+#     Parameters
+#     ----------
+#     annotation_path : string
+#         filename of annotation file to convert
     
-    Returns
-    -------
-    annotation_cat : np.array
-        The converted annotation array containing categories
-    """
-    lut = np.array([0,1,0,2,0,0,0,0,3], dtype='uint8')
-    annotation = lut[np.array(Image.open(annotation_path))]
+#     Returns
+#     -------
+#     annotation_cat : np.array
+#         The converted annotation array containing categories
+#     """
+#     lut = np.array([0,1,0,2,0,0,0,0,3], dtype='uint8')
+#     annotation = lut[np.array(Image.open(annotation_path))]
 
-    return annotation
+#     return annotation
 
 
 def read_tfrecord_and_decode_into_image_annotation_pair_tensors(path):
