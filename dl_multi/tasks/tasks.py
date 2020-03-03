@@ -48,4 +48,4 @@ def task_print_user_data():
     
     # print user's defined data
     dl_multi.__init__._logger.info("Print user's defined data")
-    dl_multi.utils.format.print_data(dl_multi.config.settings._DATA)
+    dl_multi.utils.format.print_data(dl_multi.config.settings.get_data_dict())
