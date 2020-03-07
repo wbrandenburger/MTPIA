@@ -29,7 +29,8 @@ def task_train():
     )
 
     dl_multi.tools.train.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
     )
 
 #   function ----------------------------------------------------------------

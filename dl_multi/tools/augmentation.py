@@ -1,6 +1,4 @@
 import tensorflow as tf
-from tensorflow.python.ops import control_flow_ops
-
 
 def rnd_crop_flip(image, annotation, size, minscale, maxscale):
 
