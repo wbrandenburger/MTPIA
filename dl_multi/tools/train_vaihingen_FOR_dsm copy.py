@@ -35,7 +35,6 @@ data_vaihingen, annotation_vaihingen = rnd_crop_rotate_90_with_flips_dsm(image_v
 image_vaihingen = data_vaihingen[:,:,0:3] / 127.5 - 1.
 dsm_vaihingen =  tf.image.per_image_standardization(data_vaihingen[:,:,3:4])
 
-
 ## concat für single-task mit 4-channel input
 #image_vaihingen = tf.concat([image_vaihingen, tf.expand_dims(dsm_vaihingen, axis=2)], axis=2)
 

@@ -46,7 +46,8 @@ lbl_dir = '/media/Raid/Datasets/Vaihingen/ISPRS_semantic_labeling_Vaihingen_grou
 #lbl_dir = '/media/Raid/Datasets/Vaihingen/ISPRS_semantic_labeling_Vaihingen_ground_truth_eroded_COMPLETE/'
 
 
-model_dir = '/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/'
+# model_dir = '/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/'
+model_dir = "B:\\DLMulti\\checkpoints\\train-2epch"
 for name in os.listdir(model_dir):
   model_name = model_dir + name + '/pia.ckpt-150000'
   if not '_FOR_' in model_name: continue

@@ -6,6 +6,9 @@
 # ---------------------------------------------------------------------------
 import dl_multi.__init__
 
+import tensorflow as tf
+# tf.compat.v1.enable_eager_execution()
+
 import os
 
 #   function ----------------------------------------------------------------

@@ -9,6 +9,11 @@ import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
 import dl_multi.tools.train
+import dl_multi.tools.train_sem
+import dl_multi.tools.train_dsm
+import dl_multi.tools.eval
+import dl_multi.tools.eval_sem
+import dl_multi.tools.eval_dsm
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -22,6 +27,18 @@ def task_default():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
+def task_eval():
+    """Call the main routine for evaluation of a single task model"""
+    
+    dl_multi.tools.eval.eval(
+        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_color", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def task_train():
     """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
@@ -30,6 +47,56 @@ def task_train():
 
     dl_multi.tools.train.train(
         get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def task_train_sem():
+    """Call the main routine for training a single task model"""
+    dl_multi.config.dl_multi.set_cuda_properties(
+        get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
+    )
+
+    dl_multi.tools.train_sem.train(
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def task_eval_sem():
+    """Call the main routine for evaluation of a single task model"""
+    
+    dl_multi.tools.eval_sem.eval(
+        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_color", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def task_train_dsm():
+    """Call the main routine for training a single task model"""
+    dl_multi.config.dl_multi.set_cuda_properties(
+        get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
+    )
+
+    dl_multi.tools.train_dsm.train(
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def task_eval_dsm():
+    """Call the main routine for evaluation of a single task model"""
+    
+    dl_multi.tools.eval_dsm.eval(
+        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
+        get_value(dl_multi.config.settings._SETTINGS, "param_color", dict()),
         get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
     )
 

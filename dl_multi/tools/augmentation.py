@@ -116,59 +116,68 @@ def rnd_crop_rotate_with_flips_dsm(image, annotation, size, minscale, maxscale):
 
   return img_crop, anno_crop
     
-def rnd_crop_rotate_90_with_flips_dsm(image, annotation, size, minscale, maxscale):
+def rnd_crop_rotate_90_with_flips_dsm(image, height, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
   x = tf.to_int32(size[0]/scale[0])
   y = tf.to_int32(size[1]/scale[1])
   crop_size = tf.stack([x, y, 5])  
   
+  image = tf.to_float(image)  
   annotation = tf.to_float(annotation)  
-  
+  height= tf.to_float(height)
+   
   padx = int(size[0]/2)
   pady = int(size[1]/2)
   image = tf.pad(image, tf.constant([[pady,pady],[padx,padx],[0,0]]))
+  height = tf.pad(height, tf.constant([[pady,pady],[padx,padx],[0,0]]))
   annotation = tf.pad(annotation, tf.constant([[pady,pady],[padx,padx],[0,0]]))
   
   random_var = tf.random_uniform(maxval=2, dtype=tf.int32, shape=[])
   if random_var == 1:
     image = tf.image.rot90(image)
+    height = tf.image.rot90(height)
     annotation = tf.image.rot90(annotation)
   
   #angle = tf.random_uniform([1], minval=-180, maxval=180)
   #image = tf.contrib.image.rotate(image, angle, interpolation='BILINEAR')
   #annotation = tf.contrib.image.rotate(annotation, angle, interpolation='NEAREST')  
   
-  both = tf.concat([image, annotation], 2)  
+  both = tf.concat([image, height, annotation], 2)  
   crop = tf.random_crop(both, crop_size)
   
-  img_crop = tf.slice(crop, [0,0,0], [x, y, 4])
+  img_crop = tf.slice(crop, [0,0,0], [x, y, 3])
+  height_crop = tf.slice(crop, [0,0,3], [x, y, 1])
   anno_crop = tf.slice(crop, [0,0,4], [x, y, 1])
   
   img_crop = tf.image.resize_images(img_crop, tf.stack(size), method=tf.image.ResizeMethod.BILINEAR)
+  height_crop = tf.image.resize_images(height_crop, tf.stack(size), method=tf.image.ResizeMethod.BILINEAR)
   anno_crop = tf.image.resize_images(anno_crop, tf.stack(size), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
   
   random_var = tf.random_uniform(maxval=4, dtype=tf.int32, shape=[])  
   if random_var == 1:
     img_crop = tf.image.flip_left_right(img_crop)
+    height_crop = tf.image.flip_left_right(height_crop)
     anno_crop = tf.image.flip_left_right(anno_crop)    
   #random_var = tf.random_uniform(maxval=2, dtype=tf.int32, shape=[])  
   if random_var == 2:
     img_crop = tf.image.flip_up_down(img_crop)
+    height_crop = tf.image.flip_up_down(height_crop)
     anno_crop = tf.image.flip_up_down(anno_crop)
   if random_var == 3:
     img_crop = tf.image.flip_left_right(img_crop)
     anno_crop = tf.image.flip_left_right(anno_crop)
+    height_crop = tf.image.flip_left_right(height_crop)
     img_crop = tf.image.flip_up_down(img_crop)
     anno_crop = tf.image.flip_up_down(anno_crop)
-    
+    height_crop = tf.image.flip_left_right(height_crop)
   #img_crop = tf.slice(img_crop, [0,0,0], [size[0], size[1], 3])
   #anno_crop = tf.slice(anno_crop, [0,0,0], [size[0], size[1], 1])
   
-  img_crop = tf.image.resize_image_with_crop_or_pad(img_crop, size[0], size[1])
+  img_crop = tf.image.resize_image_with_crop_or_pad(img_crop, size[0], size[1]) 
+  height_crop = tf.image.resize_image_with_crop_or_pad(height_crop, size[0], size[1])
   anno_crop = tf.image.resize_image_with_crop_or_pad(anno_crop, size[0], size[1])
-
-  return img_crop, anno_crop
+  return img_crop, height_crop, anno_crop
   
 def rnd_crop_rotate_with_flips_IR(image, annotation, size, minscale, maxscale):
 

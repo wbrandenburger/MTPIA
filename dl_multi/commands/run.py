@@ -61,7 +61,7 @@ def cli(
         dl_multi.__init__._logger.debug("Call the default routine from task set '{0}'".format(task_module[0]))
         task_module[0].main()
     else:
-        dl_multi.__init__._logger.debug("Call task '{0}' from set '{1}'".format(task_module[0], task))
+        dl_multi.__init__._logger.debug("Call task '{1}' from set '{0}'".format(task_module[0], task))
 
         task_funcs = dl_multi.plugin.get_module_functions(task_module[0])
         if not task in task_funcs:
