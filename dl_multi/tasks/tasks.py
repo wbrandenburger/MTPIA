@@ -8,10 +8,10 @@ import dl_multi.__init__
 import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
-import dl_multi.tools.train
+import dl_multi.tools.train_multi
 import dl_multi.tools.train_sem
 import dl_multi.tools.train_dsm
-import dl_multi.tools.eval
+import dl_multi.tools.eval_multi
 import dl_multi.tools.eval_sem
 import dl_multi.tools.eval_dsm
 

@@ -5,8 +5,10 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import dl_multi.tools.imgtools
+import dl_multi.tools.patches
 
 from PIL import Image
+import tifffile
 
 import os
 import logging

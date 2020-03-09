@@ -38,7 +38,7 @@ def eval(param_eval, param_label, param_color, param_out):
   # -----------------------------------------------------------------------
   checkpoint = param_out["checkpoints"] + "\\" + param_eval["checkpoint"]
   output_label = param_out["eval"] + "-" + param_eval["checkpoint"] + "_CLS.png"
-  output_height = param_out["eval"] + "-" + param_eval["checkpoint"] + "_HGHT.tif"
+  output_height = param_out["eval"] + "-" + param_eval["checkpoint"] + "_HGHT.png"
 
   logfile = open(
     param_out["logs"]  + "\\" + param_eval["checkpoint"] + ".eval.log", "w+"
@@ -70,8 +70,8 @@ def eval(param_eval, param_label, param_color, param_out):
       )
       amax = np.zeros((image_orig.shape[0], image_orig.shape[1]), np.int16)
       for p in range(len(patch_limits)):
-        #tf.reset_default_graph()
-        #tf.Graph().as_default()
+        tf.reset_default_graph()
+        tf.Graph().as_default()
               
         image=image_orig[patch_limits[p][0]:patch_limits[p][1], patch_limits[p][2]:patch_limits[p][3],:]
       
@@ -121,8 +121,8 @@ def eval(param_eval, param_label, param_color, param_out):
       ## optional: copy borders
       #amax = np.where(annotation==6, 6, amax)
       amax = dl_multi.tools.imgtools.project_data_to_img(amax)
-      tifffile.imwrite(output_height, amax)
-      #plt.imsave(output_height, amax)
+      #tifffile.imwrite(output_height, amax)
+      plt.imsave(output_height, amax)
 
     #   true = np.count_nonzero( max==label)
     #   # ignore pixel with value 6
