@@ -69,41 +69,39 @@ def eval(param_eval, param_label, param_color, param_out):
         image_orig.shape, 256, 256, 32, 32
       )
       amax = np.zeros((image_orig.shape[0], image_orig.shape[1]), np.int16)
+      for p in range(len(patch_limits)):
+        #tf.reset_default_graph()
+        #tf.Graph().as_default()
+              
+        image=image_orig[patch_limits[p][0]:patch_limits[p][1], patch_limits[p][2]:patch_limits[p][3],:]
+      
+        # pad to size divideble by 32
+        pad_h = [ 16-int(image.shape[1] % 32 / 2. + 0.5), 16-int(image.shape[1] % 32 / 2.)]
+        pad_v = [ 16-int(image.shape[0] % 32 / 2. + 0.5), 16-int(image.shape[0] % 32 / 2.)]
+        #image = np.pad(image, (pad_v, pad_h, (0,0)), 'constant')
+        # print(pad_h, pad_v)
+        lout = image
+        image = np.pad(image, (pad_v, pad_h, (0,0)), 'constant')
 
+        image = image[:,:,:] / 127.5 - 1.
+        image = tf.cast(image, tf.float32)
+        image = tf.expand_dims(image,0)
+
+        data = image
         
-      with tf.Graph().as_default(), tf.Session() as sess:
-        for p in range(len(patch_limits)):
-          #tf.reset_default_graph()
-          #tf.Graph().as_default()
-                
-          image=image_orig[patch_limits[p][0]:patch_limits[p][1], patch_limits[p][2]:patch_limits[p][3],:]
+        #print(data.shape)
+        with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
+        ## orig
+          pred = dl_multi.tools.tiramisu56.tiramisu56_dsm(data)
         
-          # pad to size divideble by 32
-          pad_h = [ 16-int(image.shape[1] % 32 / 2. + 0.5), 16-int(image.shape[1] % 32 / 2.)]
-          pad_v = [ 16-int(image.shape[0] % 32 / 2. + 0.5), 16-int(image.shape[0] % 32 / 2.)]
-          #image = np.pad(image, (pad_v, pad_h, (0,0)), 'constant')
-          # print(pad_h, pad_v)
-          lout = image
-          image = np.pad(image, (pad_v, pad_h, (0,0)), 'constant')
-
-          image = image[:,:,:] / 127.5 - 1.
-          image = tf.cast(image, tf.float32)
-          image = tf.expand_dims(image,0)
-
-          data = image
-          
-          #print(data.shape)
-          with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
-          ## orig
-            pred = dl_multi.tools.tiramisu56.tiramisu56_dsm(data)
-          
-          init_op = tf.global_variables_initializer()
-          saver = tf.train.Saver()
-          saver.restore(sess, checkpoint)
+        init_op = tf.global_variables_initializer()
+        saver = tf.train.Saver() 
+        with tf.Session() as sess:     
 
           sess.run(init_op)
+          saver.restore(sess, checkpoint)
+          sess.graph.finalize()
 
-          
           ## orig
           all_out = sess.run([pred])
           a_out = all_out[0][
@@ -117,7 +115,7 @@ def eval(param_eval, param_label, param_color, param_out):
               amax_limits[p][2] - patch_limits[p][2]:a_out.shape[1]+amax_limits[p][3] - patch_limits[p][3]
             ]
           amax[ amax_limits[p][0]:amax_limits[p][1], amax_limits[p][2]:amax_limits[p][3]] = a_cur
-          
+            
       
       #sess.graph.finalize()
       ## optional: copy borders

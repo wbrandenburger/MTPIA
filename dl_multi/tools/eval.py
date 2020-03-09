@@ -39,7 +39,7 @@ def eval(param_eval, param_label, param_color, param_out):
   output_height = param_out["eval"] + "-" + param_eval["checkpoint"] + "_HGHT.png"
 
   logfile = open(
-    param_out["logs"] + param_eval["checkpoint"] + ".eval.log", "w+"
+    param_out["logs"]  + "\\" + param_eval["checkpoint"] + ".eval.log", "w+"
   )
   out_cmap = clr.ListedColormap(np.array(param_color)/255.)
   
@@ -63,80 +63,16 @@ def eval(param_eval, param_label, param_color, param_out):
       # dsm = np.array(tiff.imread(dsm_dir + "dsm_09cm_matching_" + l[16:]))
       # label = np.array(Image.open(lbl_dir + l))
       
-      image_orig = np.array(Image.open("B:\\DLMulti\\attempt\\top_mosaic_09cm_area1_s.tif" )).astype(np.float32)
+      image_orig = np.array(Image.open("B:\\DLMulti\\eval\\top_mosaic_09cm_area1_s.tif" )).astype(np.float32)
       # dsm = np.array(tiff.imread(B:\DLMulti\attempt\\dsm_09cm_matching_area1_s.tif"))
       label = dl_multi.tools.imgtools.labels_to_image(
-        np.array(Image.open("B:\\DLMulti\\attempt\\truth_mosaic_09cm_area1_s.tif")), param_label) 
+        np.array(Image.open("B:\\DLMulti\\eval\\truth_mosaic_09cm_area1_s.tif")), param_label) 
 
-      patchi_x = 256
-      patchi_y = 256
-      patchi_x_i = 32
-      patchi_y_i = 32
-      ## compute limits for patches
-      patch_limits = []
-      amax_limits = []
-      # print(image_orig.shape)
-      p_in_x = 1
-      while (p_in_x*patchi_x - (p_in_x-1)*patchi_x_i) < image_orig.shape[1]: p_in_x = p_in_x + 1
-      p_in_y = 1
-      while (p_in_y*patchi_y - (p_in_y-1)*patchi_y_i) < image_orig.shape[0]: p_in_y = p_in_y + 1
-      print(p_in_x)
-      print(p_in_y)
-      px_max = 0
-      overlapx = [0]
-      stepsx = image_orig.shape[1]/float(p_in_x)
-      for px in range(p_in_x):
-        px_min = int(stepsx/2 + px*stepsx) - int(patchi_x/2)
-        if px_min < 0: px_min=0      
-        if px_max > 0: overlapx.append(px_max - px_min)
-        
-        px_max = int(stepsx/2 + px*stepsx) + int(patchi_x/2)
-        if px_max > image_orig.shape[1]: px_max=image_orig.shape[1]
-        
-        py_max = 0
-        overlapy = [0]
-        stepsy = image_orig.shape[0]/float(p_in_y)
-        for py in range(p_in_y):
-          py_min = int(stepsy/2 + py*stepsy) - int(patchi_y/2)
-          if py_min < 0: py_min=0
-          if py_max > 0: overlapy.append(py_max - py_min)
-          py_max = int(stepsy/2 + py*stepsy) + int(patchi_y/2)
-          if py_max > image_orig.shape[0]: py_max=image_orig.shape[0]
-        
-          patch_limits.append([py_min, py_max, px_min, px_max])
-          #print([px_min, px_max, py_min, py_max])    count = count + 1
-
-
-      overlapx.append(0)
-      overlapy.append(0)
-    
-      for px in range(p_in_x):
-        px_min = int(stepsx/2 + px*stepsx) - int(patchi_x/2) + int(overlapx[px]/2)
-        if px_min < 0: px_min=0
-        px_max = int(stepsx/2 + px*stepsx) + int(patchi_x/2) - int(overlapx[px+1]/2 + 0.5)
-        if px_max > image_orig.shape[1]: px_max=image_orig.shape[1]
-        
-        for py in range(p_in_y):
-          py_min = int(stepsy/2 + py*stepsy) - int(patchi_y/2) + int(overlapy[py]/2)
-          if py_min < 0: py_min=0
-          py_max = int(stepsy/2 + py*stepsy) + int(patchi_y/2) - int(overlapy[py+1]/2 + 0.5)
-          if py_max > image_orig.shape[0]: py_max=image_orig.shape[0]
-        
-          amax_limits.append([py_min, py_max, px_min, px_max])
-      
-      # print(overlapx, overlapy)
-      # print(patch_limits)
-      # print(amax_limits)
-      
-      #for blub in range(len(patch_limits)):
-      #  print([amax_limits[blub][0] - patch_limits[blub][0],
-      #          amax_limits[blub][1] - patch_limits[blub][1],
-      #          amax_limits[blub][2] - patch_limits[blub][2],
-      #          amax_limits[blub][3] - patch_limits[blub][3]])
-      
+      patch_limits, amax_limits = dl_multi.tools.patches.get_patch_limits(
+        image_orig.shape, 256, 256, 32, 32
+      )
       amax = np.zeros((image_orig.shape[0], image_orig.shape[1]), np.int16)
       bmax = np.zeros((image_orig.shape[0], image_orig.shape[1]), np.int16)
-      cmax = np.zeros((image_orig.shape[0], image_orig.shape[1]), np.int16)
       for p in range(len(patch_limits)):
       
         tf.reset_default_graph()
