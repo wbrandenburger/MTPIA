@@ -27,10 +27,10 @@ def task_default():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def task_eval():
+def task_eval_multi():
     """Call the main routine for evaluation of a single task model"""
     
-    dl_multi.tools.eval.eval(
+    dl_multi.tools.eval_multi.eval(
         get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
         get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
         get_value(dl_multi.config.settings._SETTINGS, "param_color", dict()),
@@ -39,13 +39,13 @@ def task_eval():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def task_train():
+def task_train_multi():
     """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.train.train(
+    dl_multi.tools.train_multi.train(
         get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
         get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
     )
