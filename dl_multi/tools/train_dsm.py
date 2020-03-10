@@ -34,7 +34,7 @@ def train(param_train, param_out):
     img, height, label = dl_multi.tools.augmentation.rnd_crop_rotate_90_with_flips_dsm(img, height, label + 1, img_size, 0.95, 1.1)
     
     # img = img / 127.5 - 1.
-    height = tf.image.per_image_standardization(height)
+    # height = tf.image.per_image_standardization(height)
     # height = height - tf.reduce_min(height)
     # Create batches of 'batch size'  images, labels and dsm by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
     # https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/shuffle_batch#for_example
