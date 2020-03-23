@@ -62,6 +62,7 @@ tfrecords_filename_vaihingen = '/media/Raid/matthias/tensorflow/PIA2019/vaihinge
   - Random cropping, rotating 90 degrees and flipping of DSM's
   - Random cropping, rotating and flipping of IR-images
   - Add color and noise
+  - Random crops from original tiles (not implemented)
 
 ### Evaluation
 
@@ -79,3 +80,14 @@ In loop:
 ```Python
 writedir = "/media/Raid/matthias/tensorflow/PIA2019/eval/results_train/"
 ```
+
+## Problems of different resolutions
+
+Training can be conducted via different strategies:
+
+- upsampling images with lower resolution to the same resolution of the input image before performing crops,
+- downsampling the images with higher resolution to speed up training and testing.
+
+## Problems of cropping and tiling
+
+Inference is implemented using a Gaussian prior over patches to avoid a checkerboard effect on the output. We predict patches sequentially with a stride smaller than the window size and weight overlapping areas with a 2D Gaussian map. Results are improved when using bigger windows and small strides as we can leverage more information from neighbor patches. For our experiments, we use a test window of 1024 and a stride of 256.

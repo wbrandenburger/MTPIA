@@ -4,10 +4,17 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+import dl_multi.__init__
+
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_img_information(img):
+    return "Shape: {}, Range: {}, {}, {}, {}".format(img.shape, np.min(img), np.max(img), np.mean(img), np.std(img))
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -46,18 +53,21 @@ def project_and_stack(img):
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def project_data_to_img(img):
-    img = img.astype(float)
+def project_data_to_img(img, dtype=np.float32, factor=1.0):
+    img = img.astype(np.float32)
     min_max_img = (np.min(img), np.max(img))
-    img = (img - min_max_img[0])/(min_max_img[1] - min_max_img[0]) * 255
-    img = img.astype(np.uint8)
+    if min_max_img[1] - min_max_img[0] != 0:
+        img = (img - min_max_img[0])/(min_max_img[1] - min_max_img[0]) 
+    
+    img *= factor
+    img = img.astype(dtype)
     return img
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def project_dict_to_img(obj):
-    img = np.fromiter(obj.values(), dtype=np.uint8)
-    return project_data_to_img(img)
+def project_dict_to_img(obj, dtype=np.float32, factor=1.0):
+    img = np.fromiter(obj.values(), dtype=dtype)
+    return project_data_to_img(img, dtype=dtype, factor=factor)
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -85,6 +95,7 @@ def labels_to_image(img, labels):
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_label_image(img, label, value, equal=True):
+    dl_multi.__init__._logger.debug("Create label image '{}' with value '{}'".format(np.unique(label), value))
     img_label = img.copy()
     for c in range(img.shape[-1]):
         if equal:

@@ -44,8 +44,8 @@ def get_image(path, spec="image", param_label=dict(), scale=100, show=False):
     img = dl_multi.tools.imgtools.resize_img(read_image(path), scale)
     if param_label and spec == "label":
         img = dl_multi.tools.imgtools.labels_to_image(img, param_label)
-    if show and spec in ["label", "height", "msi"]:
-        img = dl_multi.tools.imgtools.project_data_to_img(img)
+    if show:
+        img = dl_multi.tools.imgtools.project_data_to_img(img, dtype=np.uint8, factor=255)
     if show:
         img =  dl_multi.tools.imgtools.stack_image_dim(img)
     return img

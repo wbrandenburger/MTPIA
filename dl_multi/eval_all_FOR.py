@@ -26,7 +26,7 @@ from tiramisu56_vaihingen_FOR_dsm import tiramisu56
 #                      [255,0,0,255], # 4 Car
 #                      [255,255,0,255], # 5 Clutter/background
 #                      ])/255.
-                      
+# out_cmap = clr.ListedColormap(np.array(param_color)/255.              
 out_cmap_arr = np.array([[255,255,255,255], # 0 Impervious surfaces
                       [0,0,255,255], # 1 Building
                       [0,255,255,255], # 2 Low vegetation
