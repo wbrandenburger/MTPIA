@@ -142,13 +142,13 @@ def tiramisu56(vaihingen_batch):
     #  name='pred2_conv_vaihingen')
       
   with tf.variable_scope('regression_vaihingen'):
-    
+
     x_vaihingen_reg1 = tf.layers.conv2d(
       inputs=dsm_vaihingen,
       filters=1,#32,
       kernel_size=[1, 1],
       padding="same",
-      #activation=tf.nn.relu,
+      # activation=tf.nn.relu,
       kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
       name='reg1_conv_vaihingen')
       
@@ -233,7 +233,7 @@ def tiramisu56_dsm(vaihingen_batch):
       filters=1,#32,
       kernel_size=[1, 1],
       padding="same",
-      #activation=tf.nn.relu,
+      # activation=tf.nn.relu,
       kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
       name='reg1_conv_vaihingen')
       

@@ -13,11 +13,13 @@ import tifffile
 # ---------------------------------------------------------------------------
 class Patches():
 
-    def __init__(self, img, obj="classification", categories=0, dtype=None, limit=None, margin=None, pad = None):
+    def __init__(self, img, obj="classification", categories=0, dtype=None, limit=None, margin=None, pad = None, stitch="concatenation"):
         self._patch = []
         self._patch_out = []
         self._img = img
 
+        self._stitch = stitch 
+ 
         self._obj = obj
         if not dtype:
             if self._obj == "regression":
@@ -29,6 +31,7 @@ class Patches():
                 
 
         self._img_out = np.zeros((img.shape[0], img.shape[1]), dtype=dtype)
+        self._img_out_prob = np.zeros((img.shape[0], img.shape[1]), dtype=dtype)
         
         self._limit = limit
         self._margin = margin
@@ -55,24 +58,35 @@ class Patches():
 
     @property
     def img(self):
-        return self._img_out
+        if self._stitch == "concatenation":
+            return self._img_out
+        if self._stitch == "gaussian":
+            return np.divide(self._img_out,self._img_out_prob)
 
-    def get_image_patch_out(self, img):
-        pad = self._c_pad
-        img = img[0, pad[0][0]:-pad[0][1], pad[1][0]:-pad[1][1], :]
-        img = dl_multi.tools.imgtools.expand_image_dim(img)
-
+    def set_patch(self, model_patch):
         patch = self._patch[self._index]
-        patch_out  = self._patch_out [self._index]
-        shape = img.shape
-        return img[
-            patch_out [0] - patch[0] : shape[0] + patch_out [1] - patch[1],
-            patch_out [2] - patch[2] : shape[1] + patch_out [3] - patch[3],
-            self._categories
-        ] 
+        patch_out = self._patch_out[self._index]
 
-    def get_image_patch_out_max(self, img, axis=2):
-        return np.argmax(self.get_image_patch_out(img), axis=axis)
+        pad = self._c_pad
+        model_patch = model_patch[0, pad[0][0]:-pad[0][1], pad[1][0]:-pad[1][1], :]
+
+        if self._obj == "classification":
+            model_patch = dl_multi.tools.imgtools.expand_image_dim(np.argmax(model_patch, axis=2))
+
+        shape = model_patch.shape
+        if self._stitch == "concatenation":
+            self._img_out[
+                patch_out[0]:patch_out[1], patch_out[2]:patch_out[3]
+            ] = model_patch[
+                patch_out [0] - patch[0] : shape[0] + patch_out [1] - patch[1],
+                patch_out [2] - patch[2] : shape[1] + patch_out [3] - patch[3],
+                0
+            ] 
+
+        if self._stitch == "gaussian":
+            kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1])
+            self._img_out[patch[0] : patch[1], patch[2] : patch[3]] += np.multiply(model_patch[...,0], kernel)
+            self._img_out_prob[patch[0] : patch[1], patch[2] : patch[3]] += kernel
 
     def get_image_patch(self, pad=None):
         patch = self._patch[self._index]
@@ -96,18 +110,6 @@ class Patches():
         while (sub_patch * limit - (sub_patch-1)*margin) < shape : sub_patch = sub_patch + 1
         return sub_patch
 
-    def set_patch(self, model_patch):
-        patch_out = self._patch_out[self._index]
-
-        if self._obj == "regression":
-            patch = self.get_image_patch_out(model_patch)
-        if self._obj == "classification":
-            patch = self.get_image_patch_out_max(model_patch)
-
-        patch = dl_multi.tools.imgtools.expand_image_dim(patch)
-
-        self._img_out[patch_out[0]:patch_out[1], patch_out[2]:patch_out[3]] = patch[...,0] 
-        
     def set_patch_limits(self, limit=None, margin=None):    
         limit = limit if limit else self._limit
         margin = margin if margin else self._margin
@@ -151,8 +153,8 @@ class Patches():
                 py_max = int(stepsy/2 + py*stepsy) + int(limit[1]/2) - int(overlapy[py+1]/2 + 0.5)
                 if py_max > self._img.shape[0]: py_max = self._img.shape[0]
                 
-                self._patch_out .append([py_min, py_max, px_min, px_max])
-    
+                self._patch_out.append([py_min, py_max, px_min, px_max])
+
     def imsave(self, path):
         if self._obj == "classification":
             tifffile.imsave(path, self.img)

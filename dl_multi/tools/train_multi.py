@@ -34,7 +34,8 @@ def train(param_train, param_out):
     img, height, label = dl_multi.tools.augmentation.rnd_crop_rotate_90_with_flips_dsm(img, height, label + 1, img_size, 0.95, 1.1)
     
     img = img / 127.5 - 1.
-    #height = tf.image.per_image_standardization(height)
+    # height = height*2.0 - 1.
+    height = tf.image.per_image_standardization(height)
     # Create batches of 'batch size'  images, labels and dsm by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
     # https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/shuffle_batch#for_example
     img_batch, label_batch, dsm_batch = tf.train.shuffle_batch(
@@ -67,7 +68,7 @@ def train(param_train, param_out):
     reg_loss= tf.losses.mean_squared_error(dsm_batch, reg, weights = tf.expand_dims(mask, axis=3))
 
 
-    task_weight = 0.5
+    task_weight = 0.9
     loss = task_weight * pred_loss + (1. - task_weight) * reg_loss
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)

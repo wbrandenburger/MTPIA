@@ -40,15 +40,17 @@ def eval(
     checkpoint = param_eval["checkpoints"] + "\\" + param_eval["checkpoint"]
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
+    # eval_obj = dl_multi.tools.evaluation.EvalCat(param_label, param_class, log=logfile) # change
+
     for item in img_set:
 
         img = item.spec("image").data
         truth_task_a = item.spec(param_eval["truth"][0]).data
         truth_task_b = item.spec(param_eval["truth"][1]).data
 
-        patches_task_a = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][0], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"]) 
+        patches_task_a = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][0], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][0]) 
 
-        patches_task_b = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][1], limit=param["limit"], margin=param["margin"], pad=param["pad"])
+        patches_task_b = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][1], limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][1])
 
         for patch_task_a, patch_task_b in zip(patches_task_a, patches_task_b):
             patch_task_a.print_iter()
@@ -80,4 +82,6 @@ def eval(
 
         save(item.spec(param_eval["truth"][1]).path, patch_task_b.img, index=param_eval["truth"][1])
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_b.img)))
+
+# eval_obj.write_log() 
         

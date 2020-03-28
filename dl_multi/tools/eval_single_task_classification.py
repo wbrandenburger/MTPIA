@@ -49,7 +49,7 @@ def eval(
         dl_multi.__init__._logger.debug("Image with {}".format(dl_multi.tools.imgtools.get_img_information(img)))
         dl_multi.__init__._logger.debug("Truth with {}".format(dl_multi.tools.imgtools.get_img_information(truth)))
 
-        patches = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"]) # change
+        patches = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"]) # change
         for patch in patches:
             patch.print_iter()
 
@@ -76,4 +76,4 @@ def eval(
         save(item.spec(param_eval["truth"]).path, patches.img)
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patches.img)))
         
-    eval_obj.write_log()    
+    # eval_obj.write_log()    
