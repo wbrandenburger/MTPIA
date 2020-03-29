@@ -150,8 +150,10 @@ def get_sub_img(img, channels):
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def gaussian_kernel(height, width, sigma=0.2, mu=0.0):
+def gaussian_kernel(height, width, channel=1, sigma=0.2, mu=0.0):
     x, y = np.meshgrid(np.linspace(-1, 1, width), np.linspace(-1, 1, height))
     d = np.sqrt(x*x+y*y)
     kernel = (np.exp(-((d-mu)**2 / (2.0 * sigma**2)))) / np.sqrt(2 * np.pi * sigma**2)
+        
+    kernel = np.stack([kernel]*channel, axis=2)
     return kernel

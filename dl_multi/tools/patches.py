@@ -13,7 +13,7 @@ import tifffile
 # ---------------------------------------------------------------------------
 class Patches():
 
-    def __init__(self, img, obj="classification", categories=0, dtype=None, limit=None, margin=None, pad = None, stitch="concatenation"):
+    def __init__(self, img, obj="classification", categories=1, dtype=None, limit=None, margin=None, pad = None, stitch="concatenation"):
         self._patch = []
         self._patch_out = []
         self._img = img
@@ -21,17 +21,15 @@ class Patches():
         self._stitch = stitch 
  
         self._obj = obj
+        self._categories = range(categories)
         if not dtype:
             if self._obj == "regression":
                 dtype = np.float32
-                self._categories = 0
             if self._obj == "classification":
-                dtype = np.int16
-                self._categories=range(categories)
+                dtype = np.float32
                 
-
-        self._img_out = np.zeros((img.shape[0], img.shape[1]), dtype=dtype)
-        self._img_out_prob = np.zeros((img.shape[0], img.shape[1]), dtype=dtype)
+        self._img_out = np.zeros((img.shape[0], img.shape[1], len(self._categories)), dtype=dtype)
+        self._img_out_prob = np.zeros((img.shape[0], img.shape[1], len(self._categories)), dtype=dtype)
         
         self._limit = limit
         self._margin = margin
@@ -59,9 +57,15 @@ class Patches():
     @property
     def img(self):
         if self._stitch == "concatenation":
-            return self._img_out
+            img = self._img_out
+        
         if self._stitch == "gaussian":
-            return np.divide(self._img_out,self._img_out_prob)
+            img = np.divide(self._img_out, self._img_out_prob)
+            
+        if self._obj == "classification":
+            img = np.argmax(img, axis=2).astype(np.uint16)
+
+        return img
 
     def set_patch(self, model_patch):
         patch = self._patch[self._index]
@@ -69,24 +73,23 @@ class Patches():
 
         pad = self._c_pad
         model_patch = model_patch[0, pad[0][0]:-pad[0][1], pad[1][0]:-pad[1][1], :]
-
-        if self._obj == "classification":
-            model_patch = dl_multi.tools.imgtools.expand_image_dim(np.argmax(model_patch, axis=2))
-
-        shape = model_patch.shape
+        
+        shape = model_patch.shape 
         if self._stitch == "concatenation":
+            
             self._img_out[
-                patch_out[0]:patch_out[1], patch_out[2]:patch_out[3]
+                patch_out[0] : patch_out[1], patch_out[2] : patch_out[3], : 
             ] = model_patch[
                 patch_out [0] - patch[0] : shape[0] + patch_out [1] - patch[1],
                 patch_out [2] - patch[2] : shape[1] + patch_out [3] - patch[3],
-                0
+                :
             ] 
 
         if self._stitch == "gaussian":
-            kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1])
-            self._img_out[patch[0] : patch[1], patch[2] : patch[3]] += np.multiply(model_patch[...,0], kernel)
-            self._img_out_prob[patch[0] : patch[1], patch[2] : patch[3]] += kernel
+            kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1], channel=len(self._categories))
+
+            self._img_out[patch[0] : patch[1], patch[2] : patch[3], :] += np.multiply(model_patch, kernel)
+            self._img_out_prob[patch[0] : patch[1], patch[2] : patch[3], :] += kernel
 
     def get_image_patch(self, pad=None):
         patch = self._patch[self._index]
