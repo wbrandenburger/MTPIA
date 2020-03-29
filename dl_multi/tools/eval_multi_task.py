@@ -51,7 +51,7 @@ def eval(
         patches_task_a = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][0], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][0]) 
 
         patches_task_b = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][1], limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][1])
-        time_obj_patch = dl_multi.utils.time.MTime(len(patches_task_a))
+        time_obj_patch = dl_multi.utils.time.MTime(number=len(img_set), show=True)
         
         for patch_task_a, patch_task_b, time_patch in zip(patches_task_a, patches_task_b, time_obj_patch):
             patch_task_a.print_iter()
@@ -78,7 +78,9 @@ def eval(
                 patch_task_a.set_patch(model_out[0][0]) # change
                 patch_task_b.set_patch(model_out[0][2]) # change
 
-            time_patch.stop(show=True)
+            time_patch.stop()
+        
+        time_patch.stats()
 
         save(item.spec(param_eval["truth"][0]).path, patch_task_a.img, index=param_eval["truth"][0])
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_a.img)))
@@ -86,6 +88,8 @@ def eval(
         save(item.spec(param_eval["truth"][1]).path, patch_task_b.img, index=param_eval["truth"][1])
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_b.img)))
         
-        time_img.stop(show=True)
+        time_img.stop()
+
+    time_img.stats()
 # eval_obj.write_log() 
         
