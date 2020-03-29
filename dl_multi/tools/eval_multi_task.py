@@ -41,9 +41,9 @@ def eval(
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
     # eval_obj = dl_multi.tools.evaluation.EvalCat(param_label, param_class, log=logfile) # change
+    time_obj_img = dl_multi.utils.time.MTime(len(img_set))
 
-    for item in img_set:
-
+    for item, time_img in zip(img_set, time_obj_img):
         img = item.spec("image").data
         truth_task_a = item.spec(param_eval["truth"][0]).data
         truth_task_b = item.spec(param_eval["truth"][1]).data
@@ -51,8 +51,9 @@ def eval(
         patches_task_a = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][0], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][0]) 
 
         patches_task_b = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][1], limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][1])
-
-        for patch_task_a, patch_task_b in zip(patches_task_a, patches_task_b):
+        time_obj_patch = dl_multi.utils.time.MTime(len(patches_task_a))
+        
+        for patch_task_a, patch_task_b, time_patch in zip(patches_task_a, patches_task_b, time_obj_patch):
             patch_task_a.print_iter()
 
             tf.reset_default_graph()
@@ -77,11 +78,14 @@ def eval(
                 patch_task_a.set_patch(model_out[0][0]) # change
                 patch_task_b.set_patch(model_out[0][2]) # change
 
+            time_patch.stop(show=True)
+
         save(item.spec(param_eval["truth"][0]).path, patch_task_a.img, index=param_eval["truth"][0])
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_a.img)))
 
         save(item.spec(param_eval["truth"][1]).path, patch_task_b.img, index=param_eval["truth"][1])
         dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_b.img)))
-
+        
+        time_img.stop(show=True)
 # eval_obj.write_log() 
         

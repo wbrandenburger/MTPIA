@@ -21,7 +21,6 @@ def layer(x, filters_per_step=12, droprate=0.2, name=""):
   
 # end layer
 
-
 def dense_block(x, steps=4, filters_per_step=12, droprate=0.2, name=""):
 
   dense_out = []
