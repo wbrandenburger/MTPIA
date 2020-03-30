@@ -35,11 +35,16 @@ class Patches():
  
         self._obj = obj if isinstance(obj, list) else [obj]
         self._stitch = stitch if isinstance(stitch, list) else [stitch]
-        self._categories = categories if isinstance(categories, list) else [categories]
-        
-        self._img_out = [np.zeros((img.shape[0], img.shape[1], self._categories[task]), dtype=np.float32) for task in range(self._tasks)]
-        self._img_out_prob = [np.zeros((img.shape[0], img.shape[1], self._categories[task]), dtype=np.float32) for task in range(self._tasks)]
-        
+
+        self._img_out = [None]*self._tasks
+        self._img_out_prob = [None]*self._tasks
+        self._categories = [None]*self._tasks
+        for task in range(self._tasks):
+            self._categories[task] = 1
+            if self._obj[task] == "classification":
+                self._categories[task] = categories
+            self._img_out[task] = np.zeros((*img.shape[0:2], self._categories[task]), dtype=np.float32)
+            self._img_out_prob[task] = np.zeros((*img.shape[0:2], self._categories[task]), dtype=np.float32)
         self._limit = limit
         self._margin = margin
         self._pad = pad

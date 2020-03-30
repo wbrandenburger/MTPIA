@@ -49,9 +49,9 @@ def eval(
 
         patches = dl_multi.tools.patches.Patches(
             img, 
-            tasks=2,
+            tasks=param_eval["tasks"],
             obj=param_eval["objective"], 
-            categories=[len(param_label), 1], 
+            categories=len(param_label), 
             limit=param_eval["limit"], 
             margin=param_eval["margin"], 
             pad=param_eval["pad"], 
@@ -91,5 +91,6 @@ def eval(
         time_img.stop()
         _logger.debug(time_img.overall())
         _logger.debug(time_img.stats())
+        
 # eval_obj.write_log() 
         

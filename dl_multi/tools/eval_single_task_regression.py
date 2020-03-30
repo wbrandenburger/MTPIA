@@ -46,11 +46,9 @@ def eval(
         img = item.spec("image").data
         truth = item.spec(param_eval["truth"]).data
 
-        _logger.debug("Image with {}".format(imgtools.get_img_information(img)))
-        _logger.debug("Truth with {}".format(imgtools.get_img_information(truth)))
-
         patches = dl_multi.tools.patches.Patches(
-            img, 
+            img,
+            tasks=param_eval["tasks"], 
             obj=param_eval["objective"],
             categories=1, 
             limit=param_eval["limit"], 
