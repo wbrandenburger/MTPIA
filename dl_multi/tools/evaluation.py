@@ -14,6 +14,29 @@ import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
+def predict_labels(class_probs):
+    predicted_labels = np.argmax(class_probs, axis=1)
+    return predicted_labels
+
+def get_MAE(predicted_labels, true_labels):
+    """ Mean Absolute Error: 
+    defined as average deviation of predicted class from true class """
+    MAE = np.mean(np.abs(np.subtract(true_labels, predicted_labels)))
+    return MAE
+
+def get_MSE(predicted_labels, true_labels):
+    """ Mean Squared Error """
+    MSE = np.mean(np.square(np.subtract(true_labels, predicted_labels)))
+    return MSE
+
+def get_error_metric(predicted_labels, true_labels, metric="MAE"):
+    errors = np.subtract(true_labels, predicted_labels)
+    if metric=="MAE":
+        metric = np.abs(errors)
+    elif metric=="MSE":
+        metric = tf.square(errors)
+    return np.reduce_mean(metric)
+
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 class EvalCat():
@@ -48,21 +71,43 @@ class EvalReg():
 
     def __init__(self, log=None):
 
-        self._scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
+        self._scores = np.zeros((2), dtype=np.float32)
 
         self._log = log
         if os.path.exists(self._log):
             os.remove(self._log)
+        
+        self._index = 0
 
     def update(self, pred, truth):
-        scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
-        pred = dl_multi.tools.imgtools.project_data_to_img(pred, dtype=np.float32)
-        truth = dl_multi.tools.imgtools.project_data_to_img(truth, dtype=np.float32)
-        self._scores[0].update(np.mean(np.absolute(pred-truth)))
-        self._scores[1].update(np.std(pred-truth))
-    
+        self._scores[0] += get_MAE(pred, truth)
+        self._scores[1] += get_MSE(pred, truth)
+        self._index += 1
+
     def __repr__(self):
-        return "{} {}".format(self._scores[0],self._scores[1])
+        return "{} {}".format(self._scores[0]/self._index, np.sqrt(self._scores[0]/self._index))
+
+#   class -------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# class EvalReg():
+
+#     def __init__(self, log=None):
+
+#         self._scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
+
+#         self._log = log
+#         if os.path.exists(self._log):
+#             os.remove(self._log)
+
+#     def update(self, pred, truth):
+#         scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
+#         pred = dl_multi.tools.imgtools.project_data_to_img(pred, dtype=np.float32)
+#         truth = dl_multi.tools.imgtools.project_data_to_img(truth, dtype=np.float32)
+#         self._scores[0].update(np.mean(np.absolute(pred-truth)))
+#         self._scores[1].update(np.std(pred-truth))
+    
+#     def __repr__(self):
+#         return "{} {}".format(self._scores[0],self._scores[1])
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -170,9 +215,6 @@ class CatScores:
 
     def update(self, pred, truth):
         scores = np.zeros((len(self._labels), 4), dtype=float)
-        # ignore pixel with value 6
-        # acc = (np.count_nonzero( img_out == label) - np.sum(img_out==6))/(label.shape[0]*label.shape[1] - np.sum(label==6))
-        acc = np.count_nonzero(pred==truth)/(pred.shape[0]*pred.shape[1])
         for l in self._labels:
             l_pred = pred == l
             l_truth = truth == l
@@ -188,8 +230,7 @@ class CatScores:
                 np.logical_and(l_truth_and_pred , l_truth_inverted))  # tn
             scores[l,3] += np.count_nonzero(
                 np.logical_and(l_truth_not_pred, l_truth_inverted))  # fn
-  
-        # if self._log: self.write_log(scores=scores)
+
         self._scores += scores
 
     def get_overall_acc(self, scores=None):

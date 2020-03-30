@@ -21,7 +21,7 @@ try:
     colorama.init()
 
     log_format = (
-        'File "%(pathname)s", line %(lineno)s:\n' +
+        # 'File "%(pathname)s", line %(lineno)s:\n' +
         colorama.Fore.YELLOW +
         '%(levelname)s' +
         ':' +

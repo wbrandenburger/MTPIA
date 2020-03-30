@@ -4,7 +4,8 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.imgtools
+from dl_multi.__init__ import _logger 
+import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.patches
 import dl_multi.tools.evaluation
 import dl_multi.tools.tiramisu56
@@ -25,13 +26,12 @@ def eval(
     files,
     specs,
     output, 
-    param,
     param_eval,
     param_label, 
     param_class
     ):
 
-    dl_multi.__init__._logger.debug("Start training single task classifciation model with settings:\noutput:\t{}\nparam:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param, param_eval, param_label, param_class))   
+    _logger.debug("Start training single task classifciation model with settings:\noutput:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param_eval, param_label, param_class))   
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -41,20 +41,28 @@ def eval(
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
     eval_obj = dl_multi.tools.evaluation.EvalCat(param_label, param_class, log=logfile) # change
-    time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), show=True)
-    
+
+    time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
     for item, time_img in zip(img_set, time_obj_img):
         img = item.spec("image").data
         truth = item.spec(param_eval["truth"]).data
 
-        dl_multi.__init__._logger.debug("Image with {}".format(dl_multi.tools.imgtools.get_img_information(img)))
-        dl_multi.__init__._logger.debug("Truth with {}".format(dl_multi.tools.imgtools.get_img_information(truth)))
+        _logger.debug("Image with {}".format(imgtools.get_img_information(img)))
+        _logger.debug("Truth with {}".format(imgtools.get_img_information(truth)))
 
-        patches = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"]) # change
-        time_obj_patch = dl_multi.utils.time.MTime(len(patches))
-        
-        for patch, time_patch in zip(patches, time_obj_patch):
-            patch.print_iter()
+        patches = dl_multi.tools.patches.Patches(
+            img, 
+            obj=param_eval["objective"], 
+            categories=len(param_label), 
+            limit=param_eval["limit"], 
+            margin=param_eval["margin"], 
+            pad=param_eval["pad"], 
+            stitch=param_eval["stitch"],
+            log = _logger
+        ) # change
+
+        for patch in patches:
+            patch.status()
 
             tf.reset_default_graph()
             tf.Graph().as_default()
@@ -73,17 +81,17 @@ def eval(
                 sess.graph.finalize()
                 
                 model_out = sess.run([pred])
-                patch.set_patch(model_out[0][0]) # change
-                eval_obj.update(patches.img, truth)
-            
-            time_patch.stop()
-        
-        time_patch.stats()
-        
-        save(item.spec(param_eval["truth"]).path, patches.img)
-        dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patches.img)))
-        
-        time_img.stop
+                patch.set_patch([model_out[0][0]]) # change
+                # eval_obj.update(patches.get_img(), truth)
 
-    time_img.stats()
+            patch.time()
+            # print(eval_obj)
+        
+        save(item.spec(param_eval["truth"]).path, patches.get_img())
+        # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.img)))
+        
+        time_img.stop()
+        _logger.debug(time_img.overall())
+        _logger.debug(time_img.stats())
+
     # eval_obj.write_log()    

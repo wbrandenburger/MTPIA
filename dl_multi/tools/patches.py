@@ -5,6 +5,7 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import dl_multi.tools.imgtools
+import dl_multi.utils.time
 
 import numpy as np
 import tifffile
@@ -13,56 +14,77 @@ import tifffile
 # ---------------------------------------------------------------------------
 class Patches():
 
-    def __init__(self, img, obj="classification", categories=1, dtype=None, limit=None, margin=None, pad = None, stitch="concatenation"):
+    def __init__(self, 
+        img, 
+        tasks=1, 
+        obj="classification",
+        stitch="concatenation", 
+        categories=1, 
+        dtype=None,
+        limit=None, 
+        margin=None, 
+        pad = None, 
+        log=None
+    ):
         self._patch = []
         self._patch_out = []
         self._img = img
+        self._tasks = tasks
 
         self._stitch = stitch 
  
-        self._obj = obj
-        self._categories = range(categories)
-        if not dtype:
-            if self._obj == "regression":
-                dtype = np.float32
-            if self._obj == "classification":
-                dtype = np.float32
-                
-        self._img_out = np.zeros((img.shape[0], img.shape[1], len(self._categories)), dtype=dtype)
-        self._img_out_prob = np.zeros((img.shape[0], img.shape[1], len(self._categories)), dtype=dtype)
+        self._obj = obj if isinstance(obj, list) else [obj]
+        self._stitch = stitch if isinstance(stitch, list) else [stitch]
+        self._categories = categories if isinstance(categories, list) else [categories]
+        
+        self._img_out = [np.zeros((img.shape[0], img.shape[1], self._categories[task]), dtype=np.float32) for task in range(self._tasks)]
+        self._img_out_prob = [np.zeros((img.shape[0], img.shape[1], self._categories[task]), dtype=np.float32) for task in range(self._tasks)]
         
         self._limit = limit
         self._margin = margin
         self._pad = pad
 
         self.set_patch_limits()
+        self._time= dl_multi.utils.time.MTime(self._len, label="PATCH")
+
+        self._logger = log
 
     def __len__(self):
         return self._len
 
     def __iter__(self):
         self._index = -1
+        self._time_obj = iter(self._time)
         return self
 
     def __next__(self):
         if self._index < self._len-1:
             self._index += 1
+            next(self._time)
             return self
         else:
             raise StopIteration
 
-    def print_iter(self):
-        print("Patch {} of {} patches...".format(self._index+1, self._len))
+    def status(self):
+        return self.logger("[PATCH] Patch {} of {} patches...".format(self._index+1, self._len))
+    
+    def time(self):
+        self._time.stop()
+        return self.logger(self._time.overall())
 
-    @property
-    def img(self):
-        if self._stitch == "concatenation":
-            img = self._img_out
+    def logger(self, log_str):
+        if self._logger:
+            self._logger.debug(log_str)
+        return log_str
+
+    def get_img(self, task=0):
+        if self._stitch[task] == "concatenation":
+            img = self._img_out[task]
         
-        if self._stitch == "gaussian":
-            img = np.divide(self._img_out, self._img_out_prob)
+        if self._stitch[task] == "gaussian":
+            img = np.divide(self._img_out[task], self._img_out_prob[task])
             
-        if self._obj == "classification":
+        if self._obj[task] == "classification":
             img = np.argmax(img, axis=2).astype(np.uint16)
 
         return img
@@ -72,24 +94,25 @@ class Patches():
         patch_out = self._patch_out[self._index]
 
         pad = self._c_pad
-        model_patch = model_patch[0, pad[0][0]:-pad[0][1], pad[1][0]:-pad[1][1], :]
-        
-        shape = model_patch.shape 
-        if self._stitch == "concatenation":
+        for task in range(self._tasks):
+            task_patch = model_patch[task][0, pad[0][0]:-pad[0][1], pad[1][0]:-pad[1][1], :]
             
-            self._img_out[
-                patch_out[0] : patch_out[1], patch_out[2] : patch_out[3], : 
-            ] = model_patch[
-                patch_out [0] - patch[0] : shape[0] + patch_out [1] - patch[1],
-                patch_out [2] - patch[2] : shape[1] + patch_out [3] - patch[3],
-                :
-            ] 
+            shape = task_patch.shape 
+            if self._stitch[task] == "concatenation":
+                
+                self._img_out[task][
+                    patch_out[0] : patch_out[1], patch_out[2] : patch_out[3], : 
+                ] = task_patch[
+                    patch_out [0] - patch[0] : shape[0] + patch_out [1] - patch[1],
+                    patch_out [2] - patch[2] : shape[1] + patch_out [3] - patch[3],
+                    :
+                ] 
 
-        if self._stitch == "gaussian":
-            kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1], channel=len(self._categories))
+            if self._stitch[task] == "gaussian":
+                kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1], channel=self._categories[task])
 
-            self._img_out[patch[0] : patch[1], patch[2] : patch[3], :] += np.multiply(model_patch, kernel)
-            self._img_out_prob[patch[0] : patch[1], patch[2] : patch[3], :] += kernel
+                self._img_out[task][patch[0] : patch[1], patch[2] : patch[3], :] += np.multiply(task_patch, kernel)
+                self._img_out_prob[task][patch[0] : patch[1], patch[2] : patch[3], :] += kernel
 
     def get_image_patch(self, pad=None):
         patch = self._patch[self._index]
@@ -157,30 +180,3 @@ class Patches():
                 if py_max > self._img.shape[0]: py_max = self._img.shape[0]
                 
                 self._patch_out.append([py_min, py_max, px_min, px_max])
-
-    def imsave(self, path):
-        if self._obj == "classification":
-            tifffile.imsave(path, self.img)
-        if self._obj == "regression":
-            tifffile.imsave(path, 
-                #dl_multi.tools.imgtools.project_data_to_img(self.img)
-                self.img
-            )
-
-    # def imsave_diff(self, path, truth):
-    #     if self._obj == "classification":
-    #         tifffile.imsave(path, self.img)
-    #     if self._obj == "regression":
-    #         tifffile.imsave(path,
-    #             dl_multi.tools.imgtools.project_data_to_img( 
-    #                 np.absolute(
-    #                     dl_multi.tools.imgtools.project_data_to_img(self.img) -
-    #                     dl_multi.tools.imgtools.project_data_to_img(truth)
-    #                 )**2
-    #             )
-    #             # dl_multi.tools.imgtools.project_data_to_img( 
-    #             #     np.absolute(
-    #             #         self.img-truth
-    #             #     )**2
-    #             # )
-    #         )

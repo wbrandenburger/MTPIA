@@ -12,13 +12,13 @@ import numpy as np
 # ---------------------------------------------------------------------------
 class MTime:
 
-    def __init__(self, number=1, show=False):
+    def __init__(self, number=1, label="TIME"):
         self._len = number
         self._time_list = [0]*self._len
-
-        self._show=show
+        self._label = "[{}]".format(label)
         
     def __iter__(self):
+        self._time_list = [0]*self._len
         self._index = -1
         return self
 
@@ -33,25 +33,21 @@ class MTime:
     def start(self):
         self._time_list[self._index] = -time.time()
 
-    def stop(self, show=False):
+    def stop(self):
         self._time_list[self._index] += time.time()
-        if show or self._show:
-            print(self)
 
-    @property
     def overall(self):
-        return sum(self._time_list)
-
-    def __repr__(self):
-        t_time = self.overall
-        day = t_time // (24 * 3600)
-        t_time = t_time % (24 * 3600)
-        hour = t_time // 3600
-        t_time %= 3600
-        minutes = t_time // 60
-        t_time %= 60
-        seconds = t_time
-        return "Time needed in d:h:m:s-> {:02d}:{:02d}:{:02d}:{:02d}".format(int(day), int(hour), int(minutes), int(seconds))
+        return "{} time needed after {} of {}: {:02d}:{:02d}:{:02d}:{:02d}".format(self._label, self._index+1, self._len, *self.out(sum(self._time_list[0:self._index+1])))
 
     def stats(self):
-        print('Mean and standard deviation in seconds {:.3f} {:.3f}'.format(np.mean(self._time_list), np.std(self._time_list)))
+        return "{} mean +/- std: {:01d}:{:02d}:{:02d}:{:02d} +/- {:02d}:{:02d}:{:02d}:{:02d} [d:h:m:s]".format(self._label,*self.out(np.mean(self._time_list[0:self._index+1])), *self.out(np.std(self._time_list[0:self._index+1])))
+
+    def out(self, time):
+        day = int(time // (24 * 3600))
+        t_time = time % (24 * 3600)
+        hour = int(time // 3600)
+        t_time %= 3600
+        minutes = int(time // 60)
+        time %= 60
+        seconds = int(time)
+        return day, hour, minutes, seconds

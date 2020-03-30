@@ -4,8 +4,8 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.imgtools
-import dl_multi.tools.patches
+from dl_multi.__init__ import _logger 
+import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.evaluation
 import dl_multi.tools.tiramisu56
 
@@ -25,13 +25,12 @@ def eval(
     files,
     specs,
     output,    
-    param,
     param_eval, 
     param_label,
     param_class
     ): 
     
-    dl_multi.__init__._logger.debug("Start training multi task classifciation and regression model with settings:\noutput:\t{}\nparam:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param, param_eval, param_label, param_class))  
+    _logger.debug("Start training multi task classifciation and regression model with settings:\noutput:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param_eval, param_label, param_class))  
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -41,27 +40,31 @@ def eval(
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
     # eval_obj = dl_multi.tools.evaluation.EvalCat(param_label, param_class, log=logfile) # change
-    time_obj_img = dl_multi.utils.time.MTime(len(img_set))
 
+    time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
     for item, time_img in zip(img_set, time_obj_img):
         img = item.spec("image").data
         truth_task_a = item.spec(param_eval["truth"][0]).data
         truth_task_b = item.spec(param_eval["truth"][1]).data
 
-        patches_task_a = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][0], categories=len(param_label), limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][0]) 
-
-        patches_task_b = dl_multi.tools.patches.Patches(img, obj=param_eval["objective"][1], limit=param["limit"], margin=param["margin"], pad=param["pad"], stitch=param_eval["stitch"][1])
-        time_obj_patch = dl_multi.utils.time.MTime(number=len(img_set), show=True)
-        
-        for patch_task_a, patch_task_b, time_patch in zip(patches_task_a, patches_task_b, time_obj_patch):
-            patch_task_a.print_iter()
+        patches = dl_multi.tools.patches.Patches(
+            img, 
+            tasks=2,
+            obj=param_eval["objective"], 
+            categories=[len(param_label), 1], 
+            limit=param_eval["limit"], 
+            margin=param_eval["margin"], 
+            pad=param_eval["pad"], 
+            stitch=param_eval["stitch"],
+            log = _logger
+        ) 
+        for patch in patches:
+            patch.status()
 
             tf.reset_default_graph()
             tf.Graph().as_default()
                     
-            data = tf.cast(patch_task_a.get_image_patch() / 127.5 - 1., tf.float32)
-            patch_task_b.get_image_patch()
-
+            data = tf.cast(patch.get_image_patch() / 127.5 - 1., tf.float32)
             data = tf.expand_dims(data, 0)
       
             with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
@@ -75,21 +78,18 @@ def eval(
                 sess.graph.finalize()
                 
                 model_out = sess.run([pred])
-                patch_task_a.set_patch(model_out[0][0]) # change
-                patch_task_b.set_patch(model_out[0][2]) # change
+                patch.set_patch([model_out[0][0], model_out[0][2]]) # change
 
-            time_patch.stop()
-        
-        time_patch.stats()
+            patch.time()    
 
-        save(item.spec(param_eval["truth"][0]).path, patch_task_a.img, index=param_eval["truth"][0])
-        dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_a.img)))
+        save(item.spec(param_eval["truth"][0]).path, patches.get_img(task=0), index=param_eval["truth"][0])
+        # _logger.debug("Result with {}".format(imgtools.get_img_information(patch_task_a.img)))
 
-        save(item.spec(param_eval["truth"][1]).path, patch_task_b.img, index=param_eval["truth"][1])
-        dl_multi.__init__._logger.debug("Result with {}".format(dl_multi.tools.imgtools.get_img_information(patch_task_b.img)))
+        save(item.spec(param_eval["truth"][1]).path, patches.get_img(task=1), index=param_eval["truth"][1])
+        # _logger.debug("Result with {}".format(imgtools.get_img_information(patch_task_b.img)))
         
         time_img.stop()
-
-    time_img.stats()
+        _logger.debug(time_img.overall())
+        _logger.debug(time_img.stats())
 # eval_obj.write_log() 
         
