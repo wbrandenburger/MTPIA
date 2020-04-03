@@ -57,7 +57,7 @@ def eval(
             margin=param_eval["margin"], 
             pad=param_eval["pad"], 
             stitch=param_eval["stitch"],
-            log = _logger
+            logger = _logger
         )
 
         for patch in patches:
@@ -97,7 +97,7 @@ def eval(
 
             patch.time()     
             #print(eval_obj)
-            
+
         for task in range(param_eval["tasks"]):
             save(item.spec(truth_spec[task]).path, patches.get_img(task=task), index=None if param_eval["tasks"]==1 else truth_spec[task])
         # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.img)))

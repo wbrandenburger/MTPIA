@@ -10,11 +10,18 @@ import dl_multi.utils.time
 import numpy as np
 import tifffile
 
+#   settings ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+img_alloc = lambda img, channel: np.zeros((*img.shape[0:2], channel), dtype=np.float32)
+
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 class Patches():
 
-    def __init__(self, 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def __init__(
+        self, 
         img, 
         tasks=1, 
         obj="classification",
@@ -24,7 +31,7 @@ class Patches():
         limit=None, 
         margin=None, 
         pad = None, 
-        log=None
+        logger=None
     ):
         self._patch = []
         self._patch_out = []
@@ -43,8 +50,8 @@ class Patches():
             self._categories[task] = 1
             if self._obj[task] == "classification":
                 self._categories[task] = categories
-            self._img_out[task] = np.zeros((*img.shape[0:2], self._categories[task]), dtype=np.float32)
-            self._img_out_prob[task] = np.zeros((*img.shape[0:2], self._categories[task]), dtype=np.float32)
+            self._img_out[task] = img_alloc(img, self._categories[task])
+            self._img_out_prob[task] = img_alloc(img, self._categories[task])
         self._limit = limit
         self._margin = margin
         self._pad = pad
@@ -52,16 +59,22 @@ class Patches():
         self.set_patch_limits()
         self._time= dl_multi.utils.time.MTime(self._len, label="PATCH")
 
-        self._logger = log
+        self._logger = logger
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def __len__(self):
         return self._len
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def __iter__(self):
         self._index = -1
         self._time_obj = iter(self._time)
         return self
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def __next__(self):
         if self._index < self._len-1:
             self._index += 1
@@ -70,18 +83,26 @@ class Patches():
         else:
             raise StopIteration
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def status(self):
         return self.logger("[PATCH] Patch {} of {} patches...".format(self._index+1, self._len))
     
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------  
     def time(self):
         self._time.stop()
         return self.logger(self._time.overall())
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def logger(self, log_str):
         if self._logger:
             self._logger.debug(log_str)
         return log_str
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def get_img(self, task=0):
         if self._stitch[task] == "concatenation":
             img = self._img_out[task]
@@ -94,6 +115,8 @@ class Patches():
 
         return img
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def set_patch(self, model_patch):
         patch = self._patch[self._index]
         patch_out = self._patch_out[self._index]
@@ -119,6 +142,8 @@ class Patches():
                 self._img_out[task][patch[0] : patch[1], patch[2] : patch[3], :] += np.multiply(task_patch, kernel)
                 self._img_out_prob[task][patch[0] : patch[1], patch[2] : patch[3], :] += kernel
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def get_image_patch(self, pad=None):
         patch = self._patch[self._index]
         img_patch = self._img[patch[0]:patch[1], patch[2]:patch[3]]
@@ -130,17 +155,23 @@ class Patches():
             img_patch = np.pad(img_patch, (*self._c_pad, (0,0)), 'constant')
         return img_patch
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def get_image_pad(self, shape, pad=None):
         pad = pad if pad else self._pad
         pad_v = [int(pad/2) - int(shape[0] % pad / 2. + 0.5), int(pad/2) - int(shape[0] % pad / 2.)]
         pad_h = [int(pad/2) - int(shape[1] % pad / 2. + 0.5), int(pad/2) - int(shape[1] % pad  / 2.)]
         return (pad_v, pad_h)
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def get_sub_patch(self, shape, limit, margin):
         sub_patch = 1
         while (sub_patch * limit - (sub_patch-1)*margin) < shape : sub_patch = sub_patch + 1
         return sub_patch
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
     def set_patch_limits(self, limit=None, margin=None):    
         limit = limit if limit else self._limit
         margin = margin if margin else self._margin

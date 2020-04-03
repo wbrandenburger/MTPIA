@@ -7,9 +7,11 @@
 from dl_multi.__init__ import _logger 
 import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.patches
-import dl_multi.tools.evaluation
 import dl_multi.tools.tiramisu56
 import dl_multi.utils.time
+
+import dl_multi.tools.scores_classification
+import dl_multi.tools.metrics
 
 import logging
 import matplotlib.pyplot as plt
@@ -23,28 +25,34 @@ from PIL import Image
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
+get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def eval(
     files,
     specs,
     output,
-    param_eval
+    param_eval,
+    param_label, 
+    param_class
     ): 
     
-    _logger.debug("Start training single task regression model with settings:\noutput:\t{}\nparam_eval:\t{}".format(output, param_eval))
+    _logger.debug("Start training single task classifciation model with settings:\noutput:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param_eval, param_label, param_class))   
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
-    img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs)
+    img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs, param_label=param_label)
 
     checkpoint = param_eval["checkpoints"] + "\\" + param_eval["checkpoint"]
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
-    eval_obj = dl_multi.tools.evaluation.EvalReg(log=logfile) # change
+    eval_obj = dl_multi.tools.metrics.Metrics(param_eval["objective"], len(img_set), tasks=param_eval["tasks"], categories=len(param_label), labels=list(param_label.values()), label_spec=param_class, logger=_logger)
 
     time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
-    for item, time_img in zip(img_set, time_obj_img):
+    for item, time_img, eval_img in zip(img_set, time_obj_img, eval_obj):
         img = item.spec("image").data
-        truth = item.spec(param_eval["truth"]).data
+        truth = [item.spec(param_eval["truth"][task]).data for task in range(param_eval["tasks"])]
 
         patches = dl_multi.tools.patches.Patches(
             img,
@@ -55,8 +63,8 @@ def eval(
             margin=param_eval["margin"], 
             pad=param_eval["pad"], 
             stitch=param_eval["stitch"],
-            log = _logger
-        ) # change
+            logger = _logger
+        )
 
         for patch in patches:
             patch.status()
@@ -79,16 +87,24 @@ def eval(
                 
                 model_out = sess.run([pred])
                 patch.set_patch([model_out[0]]) # change
-                #eval_obj.update(patches.get_img(), truth)
 
             patch.time()     
-            #print(eval_obj)
 
-        save(item.spec(param_eval["truth"]).path, patches.get_img())
-        # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.img)))
+        label = item.spec(get_value(param_eval, "truth_label", None)).data if get_value(param_eval, "truth_label", None) else None
+        eval_img.update(
+            truth, 
+            [patches.get_img(task=task) for task in range(param_eval["tasks"])],
+            label=label
+        )
+        print(eval_img.print_current_stats())
+
+        for task in range(param_eval["tasks"]):
+            save(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), index=param_eval["truth"][task])
+            # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.get_img(task=task))))
         
         time_img.stop()
         _logger.debug(time_img.overall())
         _logger.debug(time_img.stats())
-
-    # eval_obj.write_log()         
+    
+    print(eval_obj)
+    eval_obj.write_log(logfile, write="w+", verbose=True)         

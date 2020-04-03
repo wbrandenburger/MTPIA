@@ -34,7 +34,7 @@ def get_error_metric(predicted_labels, true_labels, metric="MAE"):
     if metric=="MAE":
         metric = np.abs(errors)
     elif metric=="MSE":
-        metric = tf.square(errors)
+        metric = np.square(errors)
     return np.reduce_mean(metric)
 
 #   class -------------------------------------------------------------------
