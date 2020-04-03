@@ -12,7 +12,7 @@ import dl_multi.utils.format
 import dl_multi.tools.train_multi
 import dl_multi.tools.train_sem
 import dl_multi.tools.train_dsm
-import dl_multi.tools.eval_task
+import dl_multi.tools.eval_tasks
 import dl_multi.tools.eval_multi_task
 import dl_multi.tools.eval_single_task_classification
 import dl_multi.tools.eval_single_task_regression
@@ -125,7 +125,7 @@ def task_eval_tasks(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.eval_task.eval(
+    dl_multi.tools.eval_tasks.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
         dl_multi.config.settings._SETTINGS["output"],        
@@ -133,6 +133,7 @@ def task_eval_tasks(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
         get_value(dl_multi.config.settings._SETTINGS, "param_class", dict())
     )
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_print_user_settings():

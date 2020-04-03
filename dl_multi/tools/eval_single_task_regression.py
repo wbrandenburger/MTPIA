@@ -56,7 +56,7 @@ def eval(
             img,
             tasks=param_eval["tasks"], 
             obj=param_eval["objective"],
-            categories=1, 
+            categories=len(param_label), 
             limit=param_eval["limit"], 
             margin=param_eval["margin"], 
             pad=param_eval["pad"], 

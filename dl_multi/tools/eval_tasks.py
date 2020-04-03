@@ -7,9 +7,9 @@
 from dl_multi.__init__ import _logger 
 import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.patches
-import dl_multi.tools.evaluation
-import dl_multi.tools.tiramisu56
+import dl_multi.plugin
 import dl_multi.utils.time
+import dl_multi.tools.metrics
 
 import logging
 import matplotlib.pyplot as plt
@@ -20,6 +20,10 @@ import tensorflow as tf
 import tifffile
 
 from PIL import Image
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -36,17 +40,17 @@ def eval(
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
-    img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs)
+    img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs, param_label=param_label)
 
     checkpoint = param_eval["checkpoints"] + "\\" + param_eval["checkpoint"]
     logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
 
-    # eval_obj = dl_multi.tools.evaluation.EvalReg(log=logfile) # change
+    eval_obj = dl_multi.tools.metrics.Metrics(param_eval["objective"], len(img_set), tasks=param_eval["tasks"], categories=len(param_label), labels=list(param_label.values()), label_spec=param_class, logger=_logger)
 
     time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
-    truth_spec = param_eval["truth"] if isinstance(param_eval["truth"], list) else [param_eval["truth"]]
-    for item, time_img in zip(img_set, time_obj_img):
+    for item, time_img, eval_img in zip(img_set, time_obj_img, eval_obj):
         img = item.spec("image").data
+        truth = [item.spec(param_eval["truth"][task]).data for task in range(param_eval["tasks"])]
 
         patches = dl_multi.tools.patches.Patches(
             img,
@@ -70,13 +74,7 @@ def eval(
             data = tf.expand_dims(data, 0)
       
             with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
-                if param_eval["tasks"]==1: 
-                    if param_eval["objective"]=="regression":
-                        pred = dl_multi.tools.tiramisu56.tiramisu56_dsm(data)
-                    else:
-                        pred = dl_multi.tools.tiramisu56.tiramisu56_sem(data)
-                else:
-                    pred = dl_multi.tools.tiramisu56.tiramisu56(data)
+                pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
 
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()
@@ -93,17 +91,24 @@ def eval(
                         patch.set_patch([model_out[0][0]])
                 else:
                     patch.set_patch([model_out[0][0], model_out[0][2]])
-                #eval_obj.update(patches.get_img(), truth)
 
-            patch.time()     
-            #print(eval_obj)
+            patch.time()    
+
+        label = item.spec(get_value(param_eval, "truth_label", None)).data if get_value(param_eval, "truth_label", None) else None
+        eval_img.update(
+            truth, 
+            [patches.get_img(task=task) for task in range(param_eval["tasks"])],
+            label=label
+        )
+        print(eval_img.print_current_stats())
 
         for task in range(param_eval["tasks"]):
-            save(item.spec(truth_spec[task]).path, patches.get_img(task=task), index=None if param_eval["tasks"]==1 else truth_spec[task])
-        # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.img)))
+            save(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), index=param_eval["truth"][task])
+            # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.get_img(task=task))))
         
         time_img.stop()
         _logger.debug(time_img.overall())
         _logger.debug(time_img.stats())
-
-    # eval_obj.write_log()         
+    
+    print(eval_obj)
+    eval_obj.write_log(logfile, write="w+", verbose=True)             
