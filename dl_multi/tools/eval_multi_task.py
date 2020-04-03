@@ -7,10 +7,8 @@
 from dl_multi.__init__ import _logger 
 import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.patches
-import dl_multi.tools.tiramisu56
+import dl_multi.plugin
 import dl_multi.utils.time
-
-import dl_multi.tools.scores_classification
 import dl_multi.tools.metrics
 
 import logging
@@ -76,7 +74,7 @@ def eval(
             data = tf.expand_dims(data, 0)
       
             with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
-                pred = dl_multi.tools.tiramisu56.tiramisu56(data) # change
+                pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
       
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()

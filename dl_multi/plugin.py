@@ -35,19 +35,17 @@ def get_module(module):
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_module_from_submodule_task(submodule):
-    return get_module([dl_multi.config.settings._TASK_DIR, submodule])
+def get_module_from_submodule(module, submodule):
+    return get_module([module, submodule])
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_module_from_submodule_model(submodule):
-    return get_module([dl_multi.config.settings._MODULE_DIR, submodule])
+def get_module_task(module, task, submodule=None):
+    if submodule is not None:
+        module = get_module_from_submodule(module, submodule)[0]
 
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
-def get_module_task(module, task):
     return getattr(
-        get_module(module),
+        module,
         task
     )
 
