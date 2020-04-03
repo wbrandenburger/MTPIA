@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.__init__
+from dl_multi.__init__ import _logger 
 import dl_multi.config.settings
 
 import importlib
@@ -18,7 +18,38 @@ def stevedore_error_handler(manager, entrypoint, exception):
     dl_multi.__init__._logger.error(
         "Error while loading entrypoint [{0}]".format(entrypoint)
     ) # @log
-    dl_multi.__init__._logger.error(exception) # @log
+    _logger.error(exception) # @log
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_module(module):
+    module = module if isinstance(module, list) else [module]
+
+    module_name = "dl_multi"
+    for sub_module in module:
+        module_name = "{0}.{1}".format(module_name, sub_module)
+
+    _logger.debug("Import module '{0}'".format(module_name))
+
+    return (importlib.import_module(module_name), module_name)
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_module_from_submodule_task(submodule):
+    return get_module([dl_multi.config.settings._TASK_DIR, submodule])
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_module_from_submodule_model(submodule):
+    return get_module([dl_multi.config.settings._MODULE_DIR, submodule])
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_module_task(module, task):
+    return getattr(
+        get_module(module),
+        task
+    )
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -31,14 +62,6 @@ def get_tasks():
         raise ValueError("The predefined task folder seems to be empty.")
 
     return file_list
-
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
-def get_task_module(task):
-    module_name = "dl_multi.{0}.{1}".format(dl_multi.config.settings._TASK_DIR, task)
-    dl_multi.__init__._logger.debug("Import task module '{0}'".format(module_name))
-    
-    return (importlib.import_module(module_name), module_name)
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------

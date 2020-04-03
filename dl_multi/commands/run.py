@@ -54,20 +54,24 @@ def cli(
     dl_multi.config.settings.get_settings(file)
 
     # get the specified task and imort it as module
-    task_module = dl_multi.plugin.get_task_module(task_set)
+    task_module = dl_multi.plugin.get_module_from_submodule_task(task_set)
 
     # call task's main routine
     if not task:
-        dl_multi.__init__._logger.debug("Call the default routine from task set '{0}'".format(task_module[0]))
+        dl_multi.__init__._logger.debug("Call the default routine from task set '{0}'".format(task_module))
         task_module[0].main()
     else:
-        dl_multi.__init__._logger.debug("Call task '{1}' from set '{0}'".format(task_module[0], task))
+        dl_multi.__init__._logger.debug("Call task '{1}' from set '{0}'".format(task_module[1], task))
 
-        task_funcs = dl_multi.plugin.get_module_functions(task_module[0])
+        task_funcs = dl_multi.plugin.get_module_functions(task_module)
         if not task in task_funcs:
             raise dl_multi.debug.exceptions.ArgumentError(task, task_funcs) 
 
-        task_func = getattr(task_module[0], 
+        # task_func = getattr(task_module, 
+        #     "{}{}".format(dl_multi.config.settings._TASK_PREFIX, task)
+        # )
+        task_func = dl_multi.plugin.get_module_task(
+            task_set,
             "{}{}".format(dl_multi.config.settings._TASK_PREFIX, task)
         )
         task_func()

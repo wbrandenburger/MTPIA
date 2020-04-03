@@ -19,6 +19,8 @@ _TASK_SPEC_NAME = "tasks"
 _TASK_PREFIX = "task_"
 _DEFAULT_TASK = "default"
 
+_MODULE_DIR = "modules"
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def get_settings(path):

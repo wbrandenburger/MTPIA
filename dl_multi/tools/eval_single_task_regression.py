@@ -7,7 +7,7 @@
 from dl_multi.__init__ import _logger 
 import dl_multi.tools.imgtools as imgtools 
 import dl_multi.tools.patches
-import dl_multi.tools.tiramisu56
+# import dl_multi.tools.tiramisu56
 import dl_multi.utils.time
 
 import dl_multi.tools.scores_classification
