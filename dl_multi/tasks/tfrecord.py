@@ -8,7 +8,7 @@ import dl_multi.__init__
 import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
-import dl_multi.tools.tfrecord
+import dl_multi.tftools.tfrecord
 
 import numpy as np
     
@@ -32,7 +32,7 @@ def task_new_tfrecord(setting="training"):
     )
 
     try:
-        dl_multi.tools.tfrecord.write_tfrecord(
+        dl_multi.tftools.tfrecord.write_tfrecord(
             dl_multi.config.settings.get_data(setting),
             dl_multi.config.settings._SETTINGS["data-tensor-types"],
             param_label = dl_multi.config.settings._SETTINGS["param_label"],
@@ -47,7 +47,7 @@ def task_print_tfrecord(setting="training"):
     """Create new tfrecord file"""
 
     try:
-        dl_multi.tools.tfrecord.print_tfrecord(
+        dl_multi.tftools.tfrecord.print_tfrecord(
             dl_multi.config.settings._SETTINGS["data-tensor-types"],
             param_out = dl_multi.config.settings._SETTINGS["param_out"]
         )

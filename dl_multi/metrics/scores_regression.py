@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.scores
+import dl_multi.metrics.scores
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,7 @@ def get_error_metric(truth, pred, metric="MAE"):
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-class RegressionScore(dl_multi.tools.scores.Scores):
+class RegressionScore(dl_multi.metrics.scores.Scores):
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------

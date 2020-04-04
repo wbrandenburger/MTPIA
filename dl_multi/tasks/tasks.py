@@ -9,13 +9,14 @@ import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
 
-import dl_multi.tools.train_multi
-import dl_multi.tools.train_sem
-import dl_multi.tools.train_dsm
-import dl_multi.tools.eval_tasks
-import dl_multi.tools.eval_multi_task
-import dl_multi.tools.eval_single_task_classification
-import dl_multi.tools.eval_single_task_regression
+import dl_multi.models.train_multi_task
+import dl_multi.models.train_single_task_classification
+import dl_multi.models.train_single_task_regression
+
+import dl_multi.eval.eval_tasks
+import dl_multi.eval.eval_multi_task
+import dl_multi.eval.eval_single_task_classification
+import dl_multi.eval.eval_single_task_regression
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -35,9 +36,8 @@ def task_train_multi_task():
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.train_multi.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    dl_multi.models.train_multi_task.train(
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
     )
 
 #   function ----------------------------------------------------------------
@@ -48,9 +48,8 @@ def task_train_single_task_classification():
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.train_sem.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
+    dl_multi.models.train_single_task_classification.train(
+        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
     )
 
 #   function ----------------------------------------------------------------
@@ -61,9 +60,8 @@ def task_train_single_task_regression():
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.train_dsm.train(
+    dl_multi.models.train_single_task_regression.train(
         get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_out", dict())
     )
 
 #   function ----------------------------------------------------------------
@@ -74,7 +72,7 @@ def task_eval_single_task_classification(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     ) 
 
-    dl_multi.tools.eval_single_task_classification.eval(
+    dl_multi.eval.eval_single_task_classification.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
         dl_multi.config.settings._SETTINGS["output"],        
@@ -91,7 +89,7 @@ def task_eval_single_task_regression(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.eval_single_task_regression.eval(
+    dl_multi.eval.eval_single_task_regression.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
         dl_multi.config.settings._SETTINGS["output"],
@@ -108,7 +106,7 @@ def task_eval_multi_task(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.eval_multi_task.eval(
+    dl_multi.eval.eval_multi_task.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
         dl_multi.config.settings._SETTINGS["output"],        
@@ -125,7 +123,7 @@ def task_eval_tasks(setting="training"):
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
-    dl_multi.tools.eval_tasks.eval(
+    dl_multi.eval.eval_tasks.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
         dl_multi.config.settings._SETTINGS["output"],        

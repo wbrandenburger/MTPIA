@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.scores
+import dl_multi.metrics.scores
 
 import numpy as np
 import pandas as pd
@@ -94,7 +94,7 @@ def get_f1score_per_class(confusion_matrix):
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-class ClassificationScore(dl_multi.tools.scores.Scores):
+class ClassificationScore(dl_multi.metrics.scores.Scores):
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------

@@ -1,5 +1,13 @@
+# ===========================================================================
+#   augmentation.py -----------------------------------------------
+# ===========================================================================
+
+#   import ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 import tensorflow as tf
 
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def rnd_crop_flip(image, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
@@ -35,8 +43,9 @@ def rnd_crop_flip(image, annotation, size, minscale, maxscale):
 
   return img_crop, anno_crop
 
-
-def rnd_crop_flip_dsm(image, annotation, size, minscale, maxscale):
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def rnd_crop_flip_height(image, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
   x = tf.to_int32(size[0]/scale[0])
@@ -70,8 +79,10 @@ def rnd_crop_flip_dsm(image, annotation, size, minscale, maxscale):
   anno_crop = tf.image.resize_image_with_crop_or_pad(anno_crop, size[0], size[1])
 
   return img_crop, anno_crop
-  
-def rnd_crop_rotate_with_flips_dsm(image, annotation, size, minscale, maxscale):
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def rnd_crop_rotate_with_flips_height(image, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
   x = tf.to_int32(size[0]/scale[0])
@@ -115,8 +126,10 @@ def rnd_crop_rotate_with_flips_dsm(image, annotation, size, minscale, maxscale):
   anno_crop = tf.image.resize_image_with_crop_or_pad(anno_crop, size[0], size[1])
 
   return img_crop, anno_crop
-    
-def rnd_crop_rotate_90_with_flips_dsm(image, height, annotation, size, minscale, maxscale):
+  
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def rnd_crop_rotate_90_with_flips_height(image, height, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
   x = tf.to_int32(size[0]/scale[0])
@@ -179,6 +192,8 @@ def rnd_crop_rotate_90_with_flips_dsm(image, height, annotation, size, minscale,
   anno_crop = tf.image.resize_image_with_crop_or_pad(anno_crop, size[0], size[1])
   return img_crop, height_crop, anno_crop
   
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def rnd_crop_rotate_with_flips_IR(image, annotation, size, minscale, maxscale):
 
   scale = tf.random_uniform([2], minval=minscale, maxval=maxscale)
@@ -224,7 +239,8 @@ def rnd_crop_rotate_with_flips_IR(image, annotation, size, minscale, maxscale):
 
   return img_crop, anno_crop
     
-  
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def full_img(image, annotation, size, minscale, maxscale):
 
   annotation = tf.to_float(annotation) 
@@ -253,8 +269,9 @@ def full_img(image, annotation, size, minscale, maxscale):
   
   
   return img_crop, anno_crop
-  
-  
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def add_color(image, alpha=0.25, gamma=40, cwise=0.15):
 
   cwise = tf.random_uniform([3], 1-cwise, 1+cwise)
@@ -268,7 +285,9 @@ def add_color(image, alpha=0.25, gamma=40, cwise=0.15):
   image = tf.clip_by_value(image, 0, 255)  
   
   return image
-  
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------  
 def add_noise(image, size, sigma=0.02):
 
   noise = tf.random_normal([size[0], size[1], 3], 0, sigma)*255

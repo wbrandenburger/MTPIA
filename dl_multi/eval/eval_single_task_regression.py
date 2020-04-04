@@ -9,7 +9,7 @@ import dl_multi.tools.imgtools as imgtools
 import dl_multi.tools.patches
 import dl_multi.plugin
 import dl_multi.utils.time
-import dl_multi.tools.metrics
+import dl_multi.metrics.metrics
 
 import logging
 import matplotlib.pyplot as plt
@@ -42,17 +42,30 @@ def eval(
     # -----------------------------------------------------------------------
     img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs, param_label=param_label)
 
+    # Create the log and checkpoint folders if they do not exist
     folder = dl_multi.utils.general.Folder()
     checkpoint = folder.set_folder(
         param_eval["checkpoints"], name=[param_eval["checkpoint"]]
     )
-    logfile = folder.set_folder(
+    log_file = folder.set_folder(
         param_eval["logs"], name=[param_eval["checkpoint"] + ".eval.log"]
     )
 
-    eval_obj = dl_multi.tools.metrics.Metrics(param_eval["objective"], len(img_set), tasks=param_eval["tasks"], categories=len(param_label), labels=list(param_label.values()), label_spec=param_class, logger=_logger)
+    eval_obj = dl_multi.metrics.metrics.Metrics(
+        param_eval["objective"], 
+        len(img_set), 
+        tasks=param_eval["tasks"], 
+        categories=len(param_label), 
+        labels=list(param_label.values()), 
+        label_spec=param_class,
+        sklearn=get_value(param_eval, "sklearn", True),
+        logger=_logger
+    )
 
     time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
+
+    #   execution -------------------------------------------------------
+    # -------------------------------------------------------------------
     for item, time_img, eval_img in zip(img_set, time_obj_img, eval_obj):
         img = item.spec("image").data
         truth = [item.spec(param_eval["truth"][task]).data for task in range(param_eval["tasks"])]
@@ -75,12 +88,13 @@ def eval(
             tf.reset_default_graph()
             tf.Graph().as_default()
                     
-            data = tf.cast(patch.get_image_patch() / 127.5 - 1., tf.float32)
-            data = tf.expand_dims(data, 0)
+            input_norm = dl_multi.plugin.get_module_task("tftools", param_eval["input-norm"], "tfnormalization" )          
+            data = tf.expand_dims(input_norm(patch.get_image_patch()), 0)
       
             with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
                 pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
       
+            # Operation for initializing the variables.
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()
             with tf.Session() as sess:
@@ -110,4 +124,4 @@ def eval(
         _logger.debug(time_img.stats())
     
     print(eval_obj)
-    eval_obj.write_log(logfile, write="w+", verbose=True)         
+    eval_obj.write_log(log_file, write="w+", verbose=True)         

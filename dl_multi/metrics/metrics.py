@@ -5,8 +5,8 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import dl_multi.tools.imgtools
-import dl_multi.tools.scores_classification
-import dl_multi.tools.scores_regression
+import dl_multi.metrics.scores_classification
+import dl_multi.metrics.scores_regression
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ class Metrics():
         self._scores = list()
         for task in range(self._tasks):
             if self._obj[task] == "classification":
-                self._scores.append(dl_multi.tools.scores_classification.ClassificationScore(
+                self._scores.append(dl_multi.metrics.scores_classification.ClassificationScore(
                     number,
                     categories=categories,
                     labels=labels,
@@ -50,9 +50,9 @@ class Metrics():
             )
 
             # elif obj[task] == "ordinal_regression":
-            #     self._scores.append(dl_multi.tools.scores.OrdinalRegressionScores())
+            #     self._scores.append(dl_multi.metrics.scores.OrdinalRegressionScores())
             elif self._obj[task] == "regression":
-                self._scores.append(dl_multi.tools.scores_regression.RegressionScore(
+                self._scores.append(dl_multi.metrics.scores_regression.RegressionScore(
                     number,
                     categories=categories,
                     labels=labels,
