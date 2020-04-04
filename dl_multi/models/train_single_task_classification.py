@@ -75,10 +75,9 @@ def train(
     # The op for initializing the variables.
     init_op = tf.group(tf.global_variables_initializer(),
                     tf.local_variables_initializer()) 
-
-    saver = dl_multi.tftools.tfsaver.Saver(
-        tf.train.Saver(), **param_train["tfsave"], logger=_logger
-    )
+    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_train["tfsave"], logger=_logger)
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------
     with tf.Session() as sess:
         sess.run(init_op)
             
@@ -101,5 +100,7 @@ def train(
         coord.request_stop()
         coord.join(threads)
         saver.save(sess, checkpoint)
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     summary_string_writer.close()

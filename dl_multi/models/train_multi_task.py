@@ -50,7 +50,7 @@ def train(
     with tf.variable_scope("net"):
         pred, argmax, reg = dl_multi.plugin.get_module_task("models", *param_train["model"])(img_batch)
 
-    mask= tf.to_float(tf.squeeze(tf.greater(label_batch, 0.)))
+    mask = tf.to_float(tf.squeeze(tf.greater(label_batch, 0.)))
     labels = tf.to_int32(tf.squeeze(tf.maximum(label_batch-1, 0), axis=3))
 
     pred_loss = tf.reduce_mean(
@@ -87,10 +87,10 @@ def train(
     # Operation for initializing the variables.
     init_op = tf.group(tf.global_variables_initializer(),
                     tf.local_variables_initializer())                
-    saver = dl_multi.tftools.tfsaver.Saver(
-        tf.train.Saver(), **param_train["tfsave"], logger=_logger
+    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_train["tfsave"], logger=_logger
     )
-
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------
     with tf.Session() as sess:
         sess.run(init_op)
             
@@ -114,5 +114,6 @@ def train(
         coord.request_stop()
         coord.join(threads)
         saver.save(sess, checkpoint)
-        
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------     
     summary_string_writer.close()

@@ -88,7 +88,14 @@ class Metrics():
             return self
         else:
             raise StopIteration
-    
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def logger(self, log_str):
+        if self._logger is not None:
+            self._logger.debug(log_str)
+        return log_str
+
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def update(self, truth, pred, label=None):
@@ -116,7 +123,7 @@ class Metrics():
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def write_log(self, log, write="w+", **kwargs):
-        self._logger.debug("[WRITE] Write scores to file '{}'.".format(log))
+        self.logger.debug("[WRITE] Write scores to file '{}'.".format(log))
         for task in range(len(self._scores)):
             self._scores[task].write_log(log, write=write, **kwargs)
             

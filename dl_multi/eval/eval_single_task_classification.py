@@ -97,6 +97,8 @@ def eval(
             # Operation for initializing the variables.
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()
+            #   tfsession ---------------------------------------------------
+            # ---------------------------------------------------------------
             with tf.Session() as sess:
                 sess.run(init_op)
                 saver.restore(sess, checkpoint)
@@ -104,7 +106,8 @@ def eval(
                 
                 model_out = sess.run([pred])
                 patch.set_patch([model_out[0][0]]) # change
-
+            #   tfsession ---------------------------------------------------
+            # ---------------------------------------------------------------
             patch.time()
 
         label = item.spec(get_value(param_eval, "truth_label", None)).data if get_value(param_eval, "truth_label", None) else None

@@ -48,6 +48,13 @@ class Saver():
         else:
             raise StopIteration
 
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def logger(self, log_str):
+        if self._logger is not None:
+            self._logger.debug(log_str)
+        return log_str
+
     # #   method --------------------------------------------------------------
     # # -----------------------------------------------------------------------
     # def set_steps(self, steps):
@@ -75,5 +82,5 @@ class Saver():
 
         if save_ckpt:
             session_file = self._saver.save(session, checkpoint, global_step=global_step)
-            self._logger.debug("[SAVE] Model saved in file: {}".format(
-                session_file))
+            self.logger("[SAVE] Model saved in file: {}".format(
+                    session_file))
