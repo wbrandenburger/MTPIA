@@ -42,8 +42,13 @@ def eval(
     # -----------------------------------------------------------------------
     img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs, param_label=param_label)
 
-    checkpoint = param_eval["checkpoints"] + "\\" + param_eval["checkpoint"]
-    logfile = param_eval["logs"] + "\\" + param_eval["checkpoint"] + ".eval.log"
+    folder = dl_multi.utils.general.Folder()
+    checkpoint = folder.set_folder(
+        param_eval["checkpoints"], name=[param_eval["checkpoint"]]
+    )
+    logfile = folder.set_folder(
+        param_eval["logs"], name=[param_eval["checkpoint"] + ".eval.log"]
+    )
 
     eval_obj = dl_multi.tools.metrics.Metrics(param_eval["objective"], len(img_set), tasks=param_eval["tasks"], categories=len(param_label), labels=list(param_label.values()), label_spec=param_class, logger=_logger)
 

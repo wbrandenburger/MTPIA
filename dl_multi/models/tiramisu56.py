@@ -81,7 +81,7 @@ def transition_up(inp, filters, name=""):
 
   
 
-def tiramisu56(vaihingen_batch):
+def tm56_mt_cls_reg(vaihingen_batch):
   
   concats = []
   
@@ -166,7 +166,7 @@ def tiramisu56(vaihingen_batch):
   return x_vaihingen_pred1, argmax_vaihingen, x_vaihingen_reg1
 
 
-def tiramisu56_dsm(vaihingen_batch):
+def tm56_st_reg(vaihingen_batch):
   
   concats = []
   
@@ -250,7 +250,7 @@ def tiramisu56_dsm(vaihingen_batch):
 
   return x_vaihingen_reg1
 
-def tiramisu56_sem(vaihingen_batch):
+def tm56_st_cls(vaihingen_batch):
   
   concats = []
   

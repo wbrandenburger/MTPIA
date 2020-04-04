@@ -29,7 +29,7 @@ def task_default():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def task_train_multi():
+def task_train_multi_task():
     """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
@@ -42,7 +42,7 @@ def task_train_multi():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def task_train_sem():
+def task_train_single_task_classification():
     """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
@@ -55,7 +55,7 @@ def task_train_sem():
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def task_train_dsm():
+def task_train_single_task_regression():
     """Call the main routine for training a single task model"""
     dl_multi.config.dl_multi.set_cuda_properties(
         get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
