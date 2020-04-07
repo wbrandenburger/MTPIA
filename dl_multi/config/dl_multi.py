@@ -5,6 +5,7 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import dl_multi.__init__
+import dl_multi.utils.general as glu
 
 import tensorflow as tf
 # tf.compat.v1.enable_eager_execution()
@@ -14,15 +15,11 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
-
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
 def set_cuda_properties(param):
     if not param:
         return
     
-    set_cuda_visible_devices(get_value(param, "visible_devices", None))
+    set_cuda_visible_devices(glu.get_value(param, "visible_devices", None))
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------

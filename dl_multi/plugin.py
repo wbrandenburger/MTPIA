@@ -8,14 +8,13 @@ from dl_multi.__init__ import _logger
 import dl_multi.config.settings
 
 import importlib
-import logging
-import os
+import pathlib
 import re
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def stevedore_error_handler(manager, entrypoint, exception):
-    dl_multi.__init__._logger.error(
+    _logger.error(
         "Error while loading entrypoint [{0}]".format(entrypoint)
     ) # @log
     _logger.error(exception) # @log
@@ -53,8 +52,9 @@ def get_module_task(module, task, submodule=None):
 # ---------------------------------------------------------------------------
 def get_tasks():
     module = importlib.import_module("dl_multi.{0}".format(dl_multi.config.settings._TASK_DIR))
-    path = os.path.dirname(module.__file__)
-    file_list = [os.path.splitext(f)[0] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and re.compile("[^__.+__$]").match(f)]
+
+    path = pathlib.Path(module.__file__).parent
+    file_list = [str(f.stem) for f in path.iterdir() if f.is_file() and re.compile("[^__.+__$]").match(str(f.stem))]
 
     if file_list == list():
         raise ValueError("The predefined task folder seems to be empty.")

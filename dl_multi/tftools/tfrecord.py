@@ -17,8 +17,8 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 import dl_multi.__init__
-import dl_multi.tools.imgio
-import dl_multi.tools.imgtools
+import dl_multi.utils.imgio
+from dl_multi.utils import imgtools
 
 import numpy as np
 import pathlib
@@ -101,7 +101,7 @@ def write_tfrecord(files, specs, param_label=dict(), param_out = dict()):
 
     dl_multi.__init__._logger.debug("Start creation of tfrecors with settings:\n'param_out':\t'{}'".format(param_out))
     
-    img_set, _ = dl_multi.tools.imgio.get_data(files, specs=specs)
+    img_set, _ = dl_multi.utils.imgio.get_data(files, specs=specs)
     with tf.io.TFRecordWriter(param_out["tfrecords"]) as writer:
         for item in iter(img_set):
             dl_multi.__init__._logger.debug("Processing image '{}'".format(item[0].path))
@@ -111,7 +111,7 @@ def write_tfrecord(files, specs, param_label=dict(), param_out = dict()):
                 img.shape,
                 img.tostring(),
                 item.spec("height").data.tostring(),
-                dl_multi.tools.imgtools.labels_to_image(item.spec("label").data, param_label).tostring()
+                imgtools.labels_to_image(item.spec("label").data, param_label).tostring()
             )
             writer.write(tf_example.SerializeToString())
 

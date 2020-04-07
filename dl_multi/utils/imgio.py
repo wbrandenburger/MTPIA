@@ -5,9 +5,9 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 from dl_multi.__init__ import _logger
-import dl_multi.tools.imgtools
-import dl_multi.utils.general
-import dl_multi.tools.imgcontainer
+from dl_multi.utils import imgtools
+import dl_multi.utils.general as glu
+import dl_multi.utils.imgcontainer
 
 import numpy as np
 import PIL
@@ -16,10 +16,7 @@ import tifffile
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def read_image(
-        path
-    ):
-
+def read_image(path):
     _logger.debug("[READ] '{}'".format(path))
     
     if str(path).endswith(".tif"):
@@ -31,11 +28,7 @@ def read_image(
     
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def save_image(
-        dest,  
-        img
-    ):
-    
+def save_image(dest, img):
     _logger.debug("[SAVE] '{}'".format(dest))
 
     if str(dest).endswith(".tif"):
@@ -45,12 +38,8 @@ def save_image(
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def copy_image(
-        path,  
-        dest
-    ):
-    
-    dl_multi.__init__._logger.debug("[COPY] '{}'".format(dest))
+def copy_image(path, dest):
+    _logger.debug("[COPY] '{}'".format(dest))
     shutil.copy2(path, dest)
 
 #   function ----------------------------------------------------------------
@@ -64,15 +53,15 @@ def get_image(
         **kwargs
     ):
 
-    img = dl_multi.tools.imgtools.resize_img(read_image(path), scale)
+    img = imgtools.resize_img(read_image(path), scale)
 
     if param_label and spec == "label":
-        img = dl_multi.tools.imgtools.labels_to_image(img, param_label)
+        img = imgtools.labels_to_image(img, param_label)
 
     if show:
-        img = dl_multi.tools.imgtools.project_data_to_img(img, dtype=np.uint8, factor=255)
+        img = imgtools.project_data_to_img(img, dtype=np.uint8, factor=255)
     if show:
-        img =  dl_multi.tools.imgtools.stack_image_dim(img)
+        img =  imgtools.stack_image_dim(img)
 
     return img
 
@@ -88,7 +77,7 @@ def get_data(
         # default_spec="image",       
     ):
 
-    load = lambda path, spec: dl_multi.tools.imgio.get_image(
+    load = lambda path, spec: get_image(
         path, 
         spec, 
         param_label=param_label, 
@@ -97,22 +86,16 @@ def get_data(
     
     img_in = list() 
     for f_set in files:
-        img = dl_multi.tools.imgcontainer.ImgListContainer(
-            load=load, 
-            log_dir=param_log["path_dir"]# log_dir, ext=".log"
-        )
-        # if specs:
-        #     for f in f_set:
-        #     img.append(path = f, spec=default_spec)      
-        # else:
+        img = dl_multi.utils.imgcontainer.ImgListContainer(
+            load=load, log_dir=glu.get_value(param_log, "path_dir"))
         for f, s in zip(f_set, specs):
-            img.append(path = f, spec=s)
+            img.append(path = f, spec=s, **param_show)# scale=100, show=False, live=True
 
         img_in.append(img)
 
-    get_img_path = dl_multi.utils.general.PathCreator(**param_io)
-    img_out = lambda path, img, **kwargs: save_image(get_img_path(path, **kwargs), img)
+    get_path = glu.PathCreator(**param_io)
 
-    log_out = lambda path, **kwargs : get_img_path(path, **param_log, **kwargs)
+    img_out = lambda path, img, **kwargs: save_image(get_path(path, **kwargs), img)
+    log_out = lambda path, **kwargs : get_path(path, **param_log, **kwargs)
 
-    return img_in, img_out, log_out
+    return img_in, img_out, log_out, get_path

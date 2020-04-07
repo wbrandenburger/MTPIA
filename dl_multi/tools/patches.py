@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.imgtools
+from dl_multi.utils import imgtools
 import dl_multi.utils.time
 
 import numpy as np
@@ -137,7 +137,7 @@ class Patches():
                 ] 
 
             if self._stitch[task] == "gaussian":
-                kernel = dl_multi.tools.imgtools.gaussian_kernel(shape[0], shape[1], channel=self._categories[task])
+                kernel = imgtools.gaussian_kernel(shape[0], shape[1], channel=self._categories[task])
 
                 self._img_out[task][patch[0] : patch[1], patch[2] : patch[3], :] += np.multiply(task_patch, kernel)
                 self._img_out_prob[task][patch[0] : patch[1], patch[2] : patch[3], :] += kernel

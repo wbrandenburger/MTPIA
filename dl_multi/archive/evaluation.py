@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.imgtools
+from dl_multi.utils import imgtools
 import dl_multi.tools.welford
 
 import sklearn
@@ -101,8 +101,8 @@ class EvalReg():
 
 #     def update(self, pred, truth):
 #         scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
-#         pred = dl_multi.tools.imgtools.project_data_to_img(pred, dtype=np.float32)
-#         truth = dl_multi.tools.imgtools.project_data_to_img(truth, dtype=np.float32)
+#         pred = imgtools.project_data_to_img(pred, dtype=np.float32)
+#         truth = imgtools.project_data_to_img(truth, dtype=np.float32)
 #         self._scores[0].update(np.mean(np.absolute(pred-truth)))
 #         self._scores[1].update(np.std(pred-truth))
     

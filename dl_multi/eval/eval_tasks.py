@@ -5,20 +5,17 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 from dl_multi.__init__ import _logger 
-import dl_multi.tools.imgtools as imgtools 
-import dl_multi.tools.imgio
-import dl_multi.tools.patches
-import dl_multi.plugin
-import dl_multi.utils.time
 import dl_multi.metrics.metrics
+import dl_multi.plugin
+import dl_multi.tools.patches
+import dl_multi.utils.general as glu
+from dl_multi.utils import imgtools as imgtools 
+import dl_multi.utils.imgio
+import dl_multi.utils.time
 
 import tensorflow as tf
 
 import numpy as np
-
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
-get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -36,7 +33,7 @@ def eval(
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
-    img_in, img_out, log_out = dl_multi.tools.imgio.get_data(files, specs, param_io, param_log=param_log, param_label=param_label)
+    img_in, img_out, log_out, _ = dl_multi.utils.imgio.get_data(files, specs, param_io, param_log=param_log, param_label=param_label)
 
     # Create the log and checkpoint folders if they do not exist
     folder = dl_multi.utils.general.Folder()
@@ -50,7 +47,7 @@ def eval(
         categories=len(param_label), 
         labels=list(param_label.values()), 
         label_spec=param_class,
-        sklearn=get_value(param_eval, "sklearn", True),
+        sklearn=glu.get_value(param_eval, "sklearn", True),
         logger=_logger
     )
 
@@ -109,7 +106,7 @@ def eval(
 
     #   output --------------------------------------------------------------
     # -----------------------------------------------------------------------
-        label = item.spec(get_value(param_eval, "truth_label", None)).data if get_value(param_eval, "truth_label", None) else None
+        label = item.spec(glu.get_value(param_eval, "truth_label", None)).data if glu.get_value(param_eval, "truth_label", None) else None
       
         for task in range(param_eval["tasks"]):
             img_out(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), prefix=param_eval["truth"][task])

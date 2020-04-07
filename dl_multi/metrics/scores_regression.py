@@ -153,10 +153,7 @@ class RegressionScore(dl_multi.metrics.scores.Scores):
                     error_current[0, 1],
                     error[0, 0],    
                     error[0, 1],
-            )
-
-
-            
+            )  
         else:
             scores_str = "============ Stats regression: {:.3f} (MAE), {:.3f} (MSE)".format(
                 error_current[0, 0],

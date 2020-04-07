@@ -4,23 +4,20 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.__init__
+from dl_multi.__init__ import _logger
 import dl_multi.config.settings
 import dl_multi.config.dl_multi
 import dl_multi.utils.format
+import dl_multi.utils.general as glu
 import dl_multi.tftools.tfrecord
 
 import numpy as np
     
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
-
-#   function ----------------------------------------------------------------
-# ---------------------------------------------------------------------------
 def task_default():
     """Default task of set 'test'"""
-    dl_multi.__init__._logger.warning("No task chosen from set 'tests'")
+    _logger.warning("No task chosen from set 'tests'")
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -28,7 +25,7 @@ def task_new_tfrecord(setting="training"):
     """Create new tfrecord file"""
 
     dl_multi.config.dl_multi.set_cuda_properties(
-        get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
+        glu.get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
     try:
@@ -61,7 +58,7 @@ def task_test_tfrecords_utils():
     """
 
     dl_multi.config.dl_multi.set_cuda_properties(
-        get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
+        glu.get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
     )
 
     dl_multi.__init__._logger.info("Test the shortcut functions to convert a standard TensorFlow type to a tf.Example-compatible tf.train.Feature")

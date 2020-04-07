@@ -8,6 +8,21 @@ import os
 import pathlib
 import re
 
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_value(obj, key, default=None):
+    try:
+        if key in obj.keys():
+            return obj[key]
+    except KeyError:
+        pass
+    return default
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def to_list(*args):
+    return (x if isinstance(x, list) or x is None else [x] for x in args)
+
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 class Folder():

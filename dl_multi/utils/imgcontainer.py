@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.objcontainer
+import dl_multi.utils.objcontainer
 
 import pathlib
 import tifffile
@@ -26,15 +26,7 @@ class ImgListContainer(list):
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def append(
-            self, 
-            img=np.ndarray(0), 
-            path=None, 
-            spec=None, 
-            obj_flag=None, 
-            obj_copy=None,
-            live=True
-        ):
+    def append(self, img=np.ndarray(0), path=None, spec=None, obj_flag=None, obj_copy=None, live=True, **kwargs):
 
         self._live = self._live if live is None else live
         self._obj_flag = self._obj_flag if obj_flag is None else obj_flag
@@ -42,7 +34,7 @@ class ImgListContainer(list):
 
         spec = self._default_spec if not spec else spec
         super(ImgListContainer, self).append(
-            dl_multi.tools.imgcontainer.ImgContainer(
+            dl_multi.utils.imgcontainer.ImgContainer(
                 img=img,
                 path=path,
                 spec=spec,
@@ -63,7 +55,7 @@ class ImgListContainer(list):
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-class ImgContainer(dl_multi.tools.objcontainer.ObjContainer):
+class ImgContainer(dl_multi.utils.objcontainer.ObjContainer):
     
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -87,7 +79,8 @@ class ImgContainer(dl_multi.tools.objcontainer.ObjContainer):
         self._spec = spec
         self._live = live
         self._load = load if load else lambda path, spec: tifffile.imread(path)
-        self._log_dir = pathlib.Path(log_dir)
+        
+        self._log_dir = pathlib.Path(log_dir) if log_dir else None
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -101,7 +94,7 @@ class ImgContainer(dl_multi.tools.objcontainer.ObjContainer):
     def log(self):
         return str(pathlib.Path.joinpath(
             self._log_dir, "{}.log".format(pathlib.Path(self.path).stem)
-        ))
+        )) if self._log_dir else None
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------

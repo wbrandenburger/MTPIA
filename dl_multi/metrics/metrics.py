@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.tools.imgtools
+from dl_multi.utils import imgtools
 import dl_multi.metrics.scores_classification
 import dl_multi.metrics.scores_regression
 
