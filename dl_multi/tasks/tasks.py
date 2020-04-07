@@ -37,7 +37,10 @@ def task_train_multi_task():
     )
 
     dl_multi.models.train_multi_task.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_batch"],
+        dl_multi.config.settings._SETTINGS["param_save"],      
+        dl_multi.config.settings._SETTINGS["param_train"]
     )
 
 #   function ----------------------------------------------------------------
@@ -49,7 +52,10 @@ def task_train_single_task_classification():
     )
 
     dl_multi.models.train_single_task_classification.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict())
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_batch"],
+        dl_multi.config.settings._SETTINGS["param_save"],      
+        dl_multi.config.settings._SETTINGS["param_train"]
     )
 
 #   function ----------------------------------------------------------------
@@ -61,7 +67,10 @@ def task_train_single_task_regression():
     )
 
     dl_multi.models.train_single_task_regression.train(
-        get_value(dl_multi.config.settings._SETTINGS, "param_train", dict()),
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_batch"],
+        dl_multi.config.settings._SETTINGS["param_save"],      
+        dl_multi.config.settings._SETTINGS["param_train"]
     )
 
 #   function ----------------------------------------------------------------
@@ -75,10 +84,11 @@ def task_eval_single_task_classification(setting="training"):
     dl_multi.eval.eval_single_task_classification.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
-        dl_multi.config.settings._SETTINGS["output"],        
-        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_class", dict())
+        dl_multi.config.settings._SETTINGS["param_io"],
+        dl_multi.config.settings._SETTINGS["param_log"],      
+        dl_multi.config.settings._SETTINGS["param_eval"],
+        dl_multi.config.settings._SETTINGS["param_label"],
+        dl_multi.config.settings._SETTINGS["param_class"]
     )
 
 #   function ----------------------------------------------------------------
@@ -92,10 +102,11 @@ def task_eval_single_task_regression(setting="training"):
     dl_multi.eval.eval_single_task_regression.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
-        dl_multi.config.settings._SETTINGS["output"],
-        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_class", dict())
+        dl_multi.config.settings._SETTINGS["param_io"],
+        dl_multi.config.settings._SETTINGS["param_log"],         
+        dl_multi.config.settings._SETTINGS["param_eval"],
+        dl_multi.config.settings._SETTINGS["param_label"],
+        dl_multi.config.settings._SETTINGS["param_class"]
     )
 
 #   function ----------------------------------------------------------------
@@ -109,10 +120,11 @@ def task_eval_multi_task(setting="training"):
     dl_multi.eval.eval_multi_task.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
-        dl_multi.config.settings._SETTINGS["output"],        
-        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_class", dict())
+        dl_multi.config.settings._SETTINGS["param_io"],
+        dl_multi.config.settings._SETTINGS["param_log"],      
+        dl_multi.config.settings._SETTINGS["param_eval"],
+        dl_multi.config.settings._SETTINGS["param_label"],
+        dl_multi.config.settings._SETTINGS["param_class"]
     )
 
 #   function ----------------------------------------------------------------
@@ -126,10 +138,11 @@ def task_eval_tasks(setting="training"):
     dl_multi.eval.eval_tasks.eval(
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["data-tensor-types"],
-        dl_multi.config.settings._SETTINGS["output"],        
-        get_value(dl_multi.config.settings._SETTINGS, "param_eval", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_label", dict()),
-        get_value(dl_multi.config.settings._SETTINGS, "param_class", dict())
+        dl_multi.config.settings._SETTINGS["param_io"],
+        dl_multi.config.settings._SETTINGS["param_log"],                
+        dl_multi.config.settings._SETTINGS["param_eval"],
+        dl_multi.config.settings._SETTINGS["param_label"],
+        dl_multi.config.settings._SETTINGS["param_class"]
     )
 
 #   function ----------------------------------------------------------------

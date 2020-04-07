@@ -6,21 +6,13 @@
 # ---------------------------------------------------------------------------
 from dl_multi.__init__ import _logger 
 import dl_multi.tools.imgtools as imgtools 
+import dl_multi.tools.imgio
 import dl_multi.tools.patches
-import dl_multi.utils.general
 import dl_multi.plugin
 import dl_multi.utils.time
 import dl_multi.metrics.metrics
 
-import logging
-import matplotlib.pyplot as plt
-import matplotlib.colors as clr
-import numpy as np
-import os
 import tensorflow as tf
-import tifffile
-
-from PIL import Image
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -31,30 +23,27 @@ get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 def eval(
     files,
     specs,
-    output,    
+    param_io,
+    param_log,  
     param_eval, 
     param_label,
     param_class
     ): 
     
-    _logger.debug("Start training multi task classification and regression model with settings:\noutput:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(output, param_eval, param_label, param_class))  
+    _logger.debug("Start training multi task classification and regression model with settings:\nparam_io:\t{}\nparam_log:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(param_io, param_log, param_eval, param_label, param_class))  
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
-    img_set, save = dl_multi.tools.data.get_data(files, **output, specs=specs, param_label=param_label)
+    img_in, img_out, log_out = dl_multi.tools.imgio.get_data(files, specs, param_io, param_log=param_log, param_label=param_label)
 
     # Create the log and checkpoint folders if they do not exist
     folder = dl_multi.utils.general.Folder()
-    checkpoint = folder.set_folder(
-        param_eval["checkpoints"], name=[param_eval["checkpoint"]]
-    )
-    log_file = folder.set_folder(
-        param_eval["logs"], name=[param_eval["checkpoint"] + ".eval.log"]
-    )
+    checkpoint = folder.set_folder(**param_eval["checkpoint"])
+    log_file = folder.set_folder(**param_log)
     
     eval_obj = dl_multi.metrics.metrics.Metrics(
         param_eval["objective"], 
-        len(img_set), 
+        len(img_in), 
         tasks=param_eval["tasks"], 
         categories=len(param_label), 
         labels=list(param_label.values()), 
@@ -63,14 +52,14 @@ def eval(
         logger=_logger
     )
 
-    time_obj_img = dl_multi.utils.time.MTime(number=len(img_set), label="IMAGE")
+    time_obj_img = dl_multi.utils.time.MTime(number=len(img_in), label="IMAGE")
 
     #   execution -----------------------------------------------------------
     # -----------------------------------------------------------------------  
-    for item, time_img, eval_img in zip(img_set, time_obj_img, eval_obj):
-        img = item.spec("image").data
+    for item, time_img, eval_img in zip(img_in, time_obj_img, eval_obj):
+        img = dl_multi.plugin.get_module_task("tftools", param_eval["input"]["method"], "normalization")(item.spec("image").data, **param_eval["input"]["param"])
+        truth = [dl_multi.plugin.get_module_task("tftools", param_eval["output"][task]["method"], "normalization")(imgtools.expand_image_dim(item.spec(param_eval["truth"][task]).data, **param_eval["output"][task]["param"])) for task in range(param_eval["tasks"])]
 
-        truth = [item.spec(param_eval["truth"][task]).data for task in range(param_eval["tasks"])]
 
         patches = dl_multi.tools.patches.Patches(
             img, 
@@ -88,44 +77,43 @@ def eval(
 
             tf.reset_default_graph()
             tf.Graph().as_default()
-
-            input_norm = dl_multi.plugin.get_module_task("tftools", param_eval["input-norm"], "tfnormalization" )          
-            data = tf.expand_dims(input_norm(patch.get_image_patch()), 0)
+                  
+            data = tf.expand_dims(patch.get_image_patch(), 0)
       
             with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
                 pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
-      
+
+            #   tfsession ---------------------------------------------------
+            # ---------------------------------------------------------------
             # Operation for initializing the variables.
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()
-            #   tfsession ---------------------------------------------------
-            # ---------------------------------------------------------------
             with tf.Session() as sess:
                 sess.run(init_op)
                 saver.restore(sess, checkpoint)
                 sess.graph.finalize()
                 
                 model_out = sess.run([pred])
-                patch.set_patch([model_out[0][0], model_out[0][2]]) # change
-            #   tfsession ---------------------------------------------------
-            # ---------------------------------------------------------------
+                patch.set_patch([model_out[0][0], model_out[0][2]])
             patch.time() 
-      
+            #   tfsession ---------------------------------------------------
+            # ---------------------------------------------------------------            
+    #   output --------------------------------------------------------------
+    # -----------------------------------------------------------------------
         label = item.spec(get_value(param_eval, "truth_label", None)).data if get_value(param_eval, "truth_label", None) else None
-        eval_img.update(
-            truth, 
-            [patches.get_img(task=task) for task in range(param_eval["tasks"])],
+      
+        for task in range(param_eval["tasks"]):
+            img_out(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), prefix=param_eval["truth"][task])
+        
+        eval_img.update(truth, [patches.get_img(task=task) for task in range(param_eval["tasks"])],
             label=label
         )
+        eval_obj.write_log([log_out(item.spec(param_eval["truth"][task]).log,  prefix=param_eval["truth"][task]) for task in range(param_eval["tasks"])], write="w+", current=True, verbose=True)
         print(eval_img.print_current_stats())
-
-        for task in range(param_eval["tasks"]):
-            save(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), index=param_eval["truth"][task])
-            # _logger.debug("Result with {}".format(imgtools.get_img_information(patches.get_img(task=task))))
         
         time_img.stop()
         _logger.debug(time_img.overall())
         _logger.debug(time_img.stats())
-
-    print(eval_obj)
-    eval_obj.write_log(log_file, write="w+", verbose=True)      
+ 
+    eval_obj.write_log(log_file, verbose=True)
+    print(eval_obj)  

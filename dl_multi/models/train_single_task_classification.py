@@ -18,38 +18,40 @@ get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def train(
-    param_train
+        param_log,
+        param_batch,
+        param_save, 
+        param_train
     ): 
     
-    _logger.debug("Start training single task classification model with settings:\n'param_train':\t'{}'".format(param_train))
+    _logger.debug("Start training multi task classification and regression model with settings:\n'param_log':\t'{}'\n'param_batch':\t'{}',\n'param_save':\t'{}',\n'param_train':\t'{}'".format(param_log, param_batch, param_save,param_train))
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
 
     # Create the log and checkpoint folders if they do not exist
     folder = dl_multi.utils.general.Folder()
-    checkpoint = folder.set_folder(
-        param_train["checkpoints"], name=[param_train["checkpoint"]]
-    )
-    log_dir = folder.set_folder(param_train["logs"])
+    checkpoint = folder.set_folder(**param_train["checkpoint"])
+    log_dir = folder.set_folder(**param_log)
 
-    img, height, label = dl_multi.tftools.tfrecord.read_tfrecord_queue(tf.train.string_input_producer([param_train["tfrecords"]]))
-    input_norm = dl_multi.plugin.get_module_task("tftools", param_train["input-norm"], "tfnormalization" )          
-    img = input_norm(img)
+    img, height, output = dl_multi.tftools.tfrecord.read_tfrecord_queue(tf.train.string_input_producer([param_train["tfrecords"]]))
 
-    img, height, label = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(img, height, label + 1, param_train["image-size"], 0.95, 1.1)
+    img = dl_multi.plugin.get_module_task("tftools", param_train["input"]["method"], "tfnormalization")(img, **param_train["input"]["param"])
+    output = dl_multi.plugin.get_module_task("tftools", param_train["output"]["method"], "tfnormalization")(output, **param_train["output"]["param"])
+
+    img, _, output = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(img, height,     output + 1, param_train["image-size"], 0.95, 1.1)
 
     # Create batches by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
-    img_batch, label_batch = tf.train.shuffle_batch(
-        [img, label], **param_train["batch"])
+    img_batch, output_batch = tf.train.shuffle_batch(
+        [img, output], **param_batch)
 
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
     with tf.variable_scope("net"):
         pred, argmax = dl_multi.plugin.get_module_task("models", *param_train["model"])(img_batch)
 
-    mask = tf.to_float(tf.squeeze(tf.greater(label_batch, 0.)))
-    labels = tf.to_int32(tf.squeeze(tf.maximum(label_batch-1, 0), axis=3))
+    mask = tf.to_float(tf.squeeze(tf.greater(output_batch, 0.)))
+    labels = tf.to_int32(tf.squeeze(tf.maximum(output_batch-1, 0), axis=3))
 
     loss = tf.reduce_mean(
         tf.losses.compute_weighted_loss(
@@ -57,12 +59,13 @@ def train(
                 labels=labels, 
                 logits=pred
             ),
-        weights = tf.to_float(mask)
+            weights = tf.to_float(mask)
         )
     )
 
     acc = 1 - ( tf.count_nonzero((tf.to_float(argmax)-tf.to_float(labels)), dtype=tf.float32)
-            / (param_train["image-size"][0] * param_train["image-size"][1] * param_train["batch"]["batch_size"]))
+            / (param_train["image-size"][0] * param_train["image-size"][1] * param_batch["batch_size"]))
+
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step_both = tf.contrib.opt.AdamWOptimizer(0).minimize(loss)
@@ -72,12 +75,12 @@ def train(
     merged_summary_op = tf.summary.merge_all()
     summary_string_writer = tf.summary.FileWriter(log_dir)
 
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------
     # The op for initializing the variables.
     init_op = tf.group(tf.global_variables_initializer(),
                     tf.local_variables_initializer()) 
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_train["tfsave"], logger=_logger)
-    #   tfsession -----------------------------------------------------------
-    # -----------------------------------------------------------------------
+    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger)
     with tf.Session() as sess:
         sess.run(init_op)
             
@@ -102,5 +105,4 @@ def train(
         saver.save(sess, checkpoint)
     #   tfsession -----------------------------------------------------------
     # -----------------------------------------------------------------------
-
     summary_string_writer.close()

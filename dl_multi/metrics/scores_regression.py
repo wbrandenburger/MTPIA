@@ -106,18 +106,23 @@ class RegressionScore(dl_multi.metrics.scores.Scores):
     def get_error_per_class(self, index=None, current=False):
         index = self._index if current else index
         if index is not None:
-            return self.get_error_util(self._error_per_class[index])
+            return self.get_error_util_per_class(self._error_per_class[index])
         
-        return self.get_error_util(sum(self._error_per_class) / (self._index + 1))
+        return self.get_error_util_per_class(sum(self._error_per_class) / (self._index + 1))
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def get_error_util(self, error):    
         error[:,1] = np.sqrt(error[:,1], where=error[:,1]>0, out=error[:,1])
-        if error.shape[1]>2:
-            error[:,2] =  error[:,2] / np.sum(error[:,2])
-            
-        return np.where(error>0, error, -1.0)
+        return error
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def get_error_util_per_class(self, error):    
+        error = self.get_error_util(error)
+        error[:,-1] =  error[:,-1] / np.sum(error[:,-1])
+        error[:,:-1] = np.where(error[:,:-1]>0, error[:,:-1], -1.0)
+        return error
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -135,28 +140,31 @@ class RegressionScore(dl_multi.metrics.scores.Scores):
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def get_scores_str(self, index=None, current=False, verbose=False):
+    def get_scores_str(self, index=None, current=False, verbose=False, **kwargs):
         index = self._index if current else index
         
         error_current = self.get_error(index=index, current=current)
         error = self.get_error()
 
         if index is not None:
-           scores_str = "============ Stats regression step {}: {:.3f} (MAE), {:.3f}(MSE) / {:.3f} (MAE), {:.3f} (MSE) ".format(
+            scores_str = "============ Stats regression step {}: {:.3f} (MAE), {:.3f}(MSE) / {:.3f} (MAE), {:.3f} (MSE) ".format(
                     index + 1,
                     error_current[0, 0],
                     error_current[0, 1],
                     error[0, 0],    
                     error[0, 1],
             )
+
+
+            
         else:
             scores_str = "============ Stats regression: {:.3f} (MAE), {:.3f} (MSE)".format(
                 error_current[0, 0],
                 error_current[0, 1]
             )
 
-            if verbose:
-                scores_str = "{}\n\n{}".format(scores_str, self.get_error_per_class_str())
+        if verbose:
+            scores_str = "{}\n\n{}".format(scores_str, self.get_error_per_class_str(index=index, current=current))
 
         return scores_str
 
@@ -168,6 +176,6 @@ class RegressionScore(dl_multi.metrics.scores.Scores):
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def write_log(self, log, write="w+", verbose=True):
+    def write_log(self, log, write="w+", **kwargs):
         with open(log, write) as f:
-            f.write(self.get_scores_str(verbose=verbose))    
+            f.write(self.get_scores_str(**kwargs))    

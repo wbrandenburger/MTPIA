@@ -17,23 +17,25 @@ class Folder():
     def __init__(self):
         pass
 
-    def set_folder(self, folder, name=None, parents=True, exist_ok=True):
-        folder = folder if isinstance(folder, list) else [folder]
+    def set_folder(self, path_dir, path_name=None, ext=None, parents=True, exist_ok=True):
+        path_dir_list = path_dir if isinstance(path_dir, list) else [path_dir]
 
-        folder_path = pathlib.Path(folder[0])
-        for folder_idx, folder_part in enumerate(folder):
-            if folder_idx > 0:
-                folder_path = pathlib.Path.joinpath(folder_path, folder_part)
+        path = pathlib.Path(path_dir_list[0])
+        for dir_idx, dir_part in enumerate(path_dir_list):
+            if dir_idx > 0:
+                path = pathlib.Path.joinpath(path, dir_part)
         
-        folder_path.mkdir(parents=parents, exist_ok=exist_ok)
+        path.mkdir(parents=parents, exist_ok=exist_ok)
 
-        if name is None:
-            return str(folder_path)
+        if path_name is None:
+            return str(path)
             
-        name = name if isinstance(name, list) else [name]
-        folder_path = pathlib.Path.joinpath(folder_path, "".join(name))
+        path_name = path_name if isinstance(path_name, list) else [path_name]
+        path = str(pathlib.Path.joinpath(path, "".join(path_name)))
 
-        return str(folder_path)
+        if ext is None:
+            return path  
+        return "".join([path,ext])
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -41,7 +43,7 @@ class ReSearch():
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def __init__(self, regex, group):
+    def __init__(self, regex=".*", group=0):
         self._regex = re.compile(regex)
         self._group = int(group)
 
@@ -60,17 +62,33 @@ class PathCreator():
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def __init__(self, path_dir=os.environ.get("TEMP"), path_name="{}", regex=".*", group=0):
+    def __init__(self, path_dir=os.environ.get("TEMP"), path_name="{}", ext="", regex=[".*", 0]):
         self._dir = pathlib.Path(path_dir)
         if not self._dir.exists():
             self._dir.mkdir(parents=True, exist_ok=True)
         self._name = path_name
-        self._regex = ReSearch(regex, group)
+        self._regex = ReSearch(*regex)
+        self._ext=ext
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
-    def __call__(self, path, index=None):
+    def set_ext(self, ext):
+        self._ext = ext
+        
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def __call__(self, path, prefix=None, path_dir=None, ext=None, **kwargs):
+        if path_dir is None:
+            path_dir = self._dir
+        else:
+            path_dir = pathlib.Path(path_dir)
+
         name = self._name.format(self._regex(pathlib.Path(path).stem))
-        if index is not None:
-            name = "{}-{}".format(index, self._name.format(self._regex(pathlib.Path(path).stem)))
-        return self._dir / name 
+        if prefix is not None:
+            name = "{}-{}".format(prefix, self._name.format(self._regex(pathlib.Path(path).stem)))
+
+        if ext is None:
+            ext = self._ext
+            
+        name = "".join([name, ext])
+        return str(pathlib.Path.joinpath(path_dir, name))

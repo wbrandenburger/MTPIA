@@ -123,10 +123,15 @@ class Metrics():
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def write_log(self, log, write="w+", **kwargs):
-        self.logger.debug("[WRITE] Write scores to file '{}'.".format(log))
-        for task in range(len(self._scores)):
-            self._scores[task].write_log(log, write=write, **kwargs)
-            
-            write = "a+"
-            with open(log, write) as f:
-                f.write("\n\n")    
+        if not isinstance(log, list):
+            self.logger("[SAVE] '{}'".format(log))
+            for task in range(len(self._scores)):
+                self._scores[task].write_log(log, write=write, **kwargs)
+
+                write = "a+"
+                with open(log, write) as f:
+                    f.write("\n\n")
+        else:
+            for task in range(len(self._scores)):
+                self.logger("[SAVE] '{}'".format(log[task]))
+                self._scores[task].write_log(log[task], write=write, **kwargs)

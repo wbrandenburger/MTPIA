@@ -1,6 +1,0 @@
-model_checkpoint_path: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt-150000"
-all_model_checkpoint_paths: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt-75000"
-all_model_checkpoint_paths: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt-100000"
-all_model_checkpoint_paths: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt-125000"
-all_model_checkpoint_paths: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt"
-all_model_checkpoint_paths: "/media/Raid/matthias/tensorflow/PIA2019/checkpoints/PIA/vaihingen_FOR_dsm_190706_DLBox/pia.ckpt-150000"

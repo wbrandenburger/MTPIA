@@ -10,6 +10,7 @@ import dl_multi.tftools.augmentation
 
 import os
 import tensorflow as tf
+import sys
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -18,32 +19,35 @@ get_value = lambda obj, key, default: obj[key] if key in obj.keys() else default
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def train(
-    param_train
+        param_log,
+        param_batch,
+        param_save, 
+        param_train
     ): 
     
-    _logger.debug("Start training multi task classification and regression model with settings:\n'param_train':\t'{}'".format(param_train))
+    _logger.debug("Start training multi task classification and regression model with settings:\n'param_log':\t'{}'\n'param_batch':\t'{}',\n'param_save':\t'{}',\n'param_train':\t'{}'".format(param_log, param_batch, param_save,param_train))
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
     
     # Create the log and checkpoint folders if they do not exist
     folder = dl_multi.utils.general.Folder()
-    checkpoint = folder.set_folder(
-        param_train["checkpoints"], name=[param_train["checkpoint"]]
-    )
-    log_dir = folder.set_folder(param_train["logs"])
+    checkpoint = folder.set_folder(**param_train["checkpoint"])
+    log_dir = folder.set_folder(**param_log)
 
-    img, height, label = dl_multi.tftools.tfrecord.read_tfrecord_queue(tf.train.string_input_producer([param_train["tfrecords"]]))
+    input_norm = dl_multi.plugin.get_module_task("tftools", param_train["input-norm"], "tfnormalization")  
 
-    input_norm = dl_multi.plugin.get_module_task("tftools", param_train["input-norm"], "tfnormalization" )          
-    img = input_norm(img)
-    height = tf.image.per_image_standardization(height)
+    img, output_1, output_2 = dl_multi.tftools.tfrecord.read_tfrecord_queue(tf.train.string_input_producer([param_train["tfrecords"]]))
 
-    img, height, label = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(img, height, label + 1, param_train["image-size"], 0.95, 1.1)
+    img = dl_multi.plugin.get_module_task("tftools", param_train["input"]["method"], "tfnormalization")(img, **param_train["input"]["param"])
+    output_1 = dl_multi.plugin.get_module_task("tftools", param_train["output"][1]["method"], "tfnormalization")(output_1, **param_train["output"][1]["param"])
+    output_2 = dl_multi.plugin.get_module_task("tftools", param_train["output"][0]["method"], "tfnormalization")(output_2, **param_train["output"][0]["param"])
+
+    img, output_1, output_2 = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(img, output_1, output_2+1, param_train["image-size"], 0.95, 1.1)
 
     # Create batches by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
     img_batch, label_batch, height_batch = tf.train.shuffle_batch(
-        [img, label, height], **param_train["batch"])
+        [img, output_2, output_1], **param_batch)
 
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
@@ -52,19 +56,19 @@ def train(
 
     mask = tf.to_float(tf.squeeze(tf.greater(label_batch, 0.)))
     labels = tf.to_int32(tf.squeeze(tf.maximum(label_batch-1, 0), axis=3))
-
+    
     pred_loss = tf.reduce_mean(
         tf.losses.compute_weighted_loss(
             losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
                 labels=labels, 
                 logits=pred
             ),
-        weights = tf.to_float(mask)
+            weights = tf.to_float(mask)
         )
     )
 
     acc = 1 - ( tf.count_nonzero((tf.to_float(argmax)-tf.to_float(labels)), dtype=tf.float32)
-            / (param_train["image-size"][0] * param_train["image-size"][1] * param_train["batch"]["batch_size"]))
+            / (param_train["image-size"][0] * param_train["image-size"][1] * param_batch["batch_size"]))
                 
     reg_loss= tf.losses.mean_squared_error(height_batch, reg, weights = tf.expand_dims(mask, axis=3))
 
@@ -84,16 +88,16 @@ def train(
     merged_summary_op = tf.summary.merge_all()
     summary_string_writer = tf.summary.FileWriter(log_dir)
 
+    #   tfsession -----------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Operation for initializing the variables.
     init_op = tf.group(tf.global_variables_initializer(),
                     tf.local_variables_initializer())                
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_train["tfsave"], logger=_logger
+    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger
     )
-    #   tfsession -----------------------------------------------------------
-    # -----------------------------------------------------------------------
     with tf.Session() as sess:
         sess.run(init_op)
-            
+    
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
             
@@ -102,7 +106,7 @@ def train(
         loss_v_r = 0
 
         # iterate epochs
-        for epoch in range(param_train["num-epochs"]+1):
+        for epoch in saver:
             loss_v, loss_v_r, acc_v, summary_string, _ = sess.run([ pred_loss, reg_loss, acc, merged_summary_op, train_step_both])
             
             summary_string_writer.add_summary(summary_string, epoch._index)
@@ -115,5 +119,5 @@ def train(
         coord.join(threads)
         saver.save(sess, checkpoint)
     #   tfsession -----------------------------------------------------------
-    # -----------------------------------------------------------------------     
+    # ----------------------------------------------------------------------- 
     summary_string_writer.close()

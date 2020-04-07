@@ -79,9 +79,7 @@ def transition_up(inp, filters, name=""):
   
 # end transition_up
 
-  
-
-def tm56_mt_cls_reg(vaihingen_batch):
+def multi_task_classification_regression(vaihingen_batch):
   
   concats = []
   
@@ -166,7 +164,7 @@ def tm56_mt_cls_reg(vaihingen_batch):
   return x_vaihingen_pred1, argmax_vaihingen, x_vaihingen_reg1
 
 
-def tm56_st_reg(vaihingen_batch):
+def single_task_regression(vaihingen_batch):
   
   concats = []
   
@@ -250,7 +248,7 @@ def tm56_st_reg(vaihingen_batch):
 
   return x_vaihingen_reg1
 
-def tm56_st_cls(vaihingen_batch):
+def single_task_classification(vaihingen_batch):
   
   concats = []
   
