@@ -146,22 +146,19 @@ class RegressionScore(dl_multi.metrics.scores.Scores):
         error_current = self.get_error(index=index, current=current)
         error = self.get_error()
 
-        if index is not None:
-            scores_str = "============ Stats regression step {}: {:.3f} (MAE), {:.3f}(MSE) / {:.3f} (MAE), {:.3f} (MSE) ".format(
-                    index + 1,
-                    error_current[0, 0],
-                    error_current[0, 1],
-                    error[0, 0],    
-                    error[0, 1],
-            )  
+        if index is None:
+            scores_str = "============ Overall Stats - Regression: {:.3f} (MAE), {:.3f} (MSE)".format(
+                error[0, 0],
+                error[0, 1]
+            )
         else:
-            scores_str = "============ Stats regression: {:.3f} (MAE), {:.3f} (MSE)".format(
+            scores_str = "============ Object Stats - Regression: {:.3f} (MAE), {:.3f} (MSE)".format(
                 error_current[0, 0],
                 error_current[0, 1]
-            )
+            )  
 
-        if verbose:
-            scores_str = "{}\n\n{}".format(scores_str, self.get_error_per_class_str(index=index, current=current))
+            if verbose:
+                scores_str = "{}\n\n{}".format(scores_str, self.get_error_per_class_str(index=index, current=current))
 
         return scores_str
 

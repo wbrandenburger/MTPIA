@@ -194,21 +194,18 @@ class ClassificationScore(dl_multi.metrics.scores.Scores):
     # -----------------------------------------------------------------------
     def get_scores_str(self, index=None, current=False, verbose=False, **kwargs):
         index = self._index if current else index
-        if index is not None:
-            scores_str = "============ Stats classification step {}: {}/{}".format(
-                    index + 1,
-                    self.get_overall(index=index, current=current),
-                    self.get_overall()
-            )
-
-
-        else:
-            scores_str = "============ Stats classification with overall accuracy: {}".format(
+        
+        if index is None:
+            scores_str = "============ Overall Stats - Classification: {}".format(
                 self.get_overall(index=index, current=current)
             )
+        else:
+            scores_str = "============ Object Stats - Classification: {}".format(
+                    self.get_overall(index=index, current=current)
+            )
 
-        if verbose:
-            scores_str = "{}\n\n{}".format(scores_str, self.get_scores_per_class_str(index=index, current=current))
+            if verbose:
+                scores_str = "{}\n\n{}".format(scores_str, self.get_scores_per_class_str(index=index, current=current))
 
         return scores_str
 
