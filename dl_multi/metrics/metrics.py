@@ -19,8 +19,7 @@ class Metrics():
         obj,
 
         number,
-        tasks=1,
-        loss=None,
+        # loss=None,
 
         categories=None,
         labels=None,
@@ -33,7 +32,7 @@ class Metrics():
         self._obj = obj if isinstance(obj, list) else [obj]
 
         self._len = number
-        self._tasks = tasks
+        self._tasks = len(self._obj)
 
         self._scores = list()
         for task in range(self._tasks):
@@ -48,7 +47,6 @@ class Metrics():
                     decimals=decimals
                 )
             )
-
             # elif obj[task] == "ordinal_regression":
             #     self._scores.append(dl_multi.metrics.scores.OrdinalRegressionScores())
             elif self._obj[task] == "regression":
@@ -64,6 +62,8 @@ class Metrics():
 
         self._logger = logger
 
+        self._index = -1
+        
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def __len__(self):

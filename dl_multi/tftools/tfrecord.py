@@ -16,7 +16,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-import dl_multi.__init__
+from  dl_multi.__init__ import _logger
 import dl_multi.utils.imgio
 from dl_multi.utils import imgtools
 
@@ -61,22 +61,6 @@ def _float_feature(value, serialize=False):
     feature = tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
     return feature if not serialize else feature.SerializeToString()
 
-# Create a dictionary describing the features. The key of the dict should be the same with the key in writing function.
-
-_feature_specs = {
-    "features" : {
-        "rows": tf.io.FixedLenFeature([], tf.int64),
-        "cols": tf.io.FixedLenFeature([], tf.int64),
-        "image": tf.io.FixedLenFeature([], tf.string),
-        "height": tf.io.FixedLenFeature([], tf.string),
-        "label": tf.io.FixedLenFeature([], tf.string)
-    }, 
-    "images" : [
-        {"spec": "image", "channels": 3, "type" : tf.uint8, "ext": ".tif"},
-        {"spec": "height", "channels": 1, "type" : tf.float32, "ext": ".tif"},
-        {"spec": "label", "channels": 1, "type" : tf.uint8, "ext": ".tif"} 
-    ]
-}
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def _int64_feature(value, serialize=False):
@@ -94,12 +78,29 @@ def _int64_feature(value, serialize=False):
     feature = tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
     return feature if not serialize else feature.SerializeToString()
 
+# Create a dictionary describing the features. The key of the dict should be the same with the key in writing function.
+
+_feature_specs = {
+    "features" : {
+        "rows": tf.io.FixedLenFeature([], tf.int64),
+        "cols": tf.io.FixedLenFeature([], tf.int64),
+        "image": tf.io.FixedLenFeature([], tf.string),
+        "height": tf.io.FixedLenFeature([], tf.string),
+        "label": tf.io.FixedLenFeature([], tf.string)
+    }, 
+    "images" : [
+        {"spec": "image", "channels": 3, "type" : tf.uint8, "ext": ".tif"},
+        {"spec": "height", "channels": 1, "type" : tf.float32, "ext": ".tif"},
+        {"spec": "label", "channels": 1, "type" : tf.uint8, "ext": ".tif"} 
+    ]
+}
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def write_tfrecord(files, specs, param_label=dict(), param_out = dict()):
     """Create a dictionary with features that may be relevant."""
 
-    dl_multi.__init__._logger.debug("Start creation of tfrecors with settings:\n'param_out':\t'{}'".format(param_out))
+    _logger.debug("Start creation of tfrecors with settings:\n'param_out':\t'{}'".format(param_out))
     
     img_set, _ = dl_multi.utils.imgio.get_data(files, specs=specs)
     with tf.io.TFRecordWriter(param_out["tfrecords"]) as writer:

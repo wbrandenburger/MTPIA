@@ -7,7 +7,7 @@
 from dl_multi.__init__ import _logger 
 import dl_multi.metrics.metrics
 import dl_multi.plugin
-import dl_multi.tools.patches
+import dl_multi.utils.patches
 import dl_multi.utils.general as glu
 from dl_multi.utils import imgtools as imgtools 
 import dl_multi.utils.imgio
@@ -38,10 +38,11 @@ def eval(
     checkpoint = folder.set_folder(**param_eval["checkpoint"])
     log_file = folder.set_folder(**param_log)
     
+    tasks = len(param_eval["objective"]) if isinstance(param_eval["objective"], list) else 1
+
     eval_obj = dl_multi.metrics.metrics.Metrics(
         param_eval["objective"], 
         len(img_in), 
-        tasks=param_eval["tasks"], 
         categories=len(param_label), 
         labels=list(param_label.values()), 
         label_spec=param_class, 
@@ -55,12 +56,10 @@ def eval(
     # -----------------------------------------------------------------------  
     for item, time_img, eval_img in zip(img_in, time_obj_img, eval_obj):
         img = dl_multi.plugin.get_module_task("tftools", param_eval["input"]["method"], "normalization")(item.spec("image").data, **param_eval["input"]["param"])
-        truth = [dl_multi.plugin.get_module_task("tftools", param_eval["output"][task]["method"], "normalization")(imgtools.expand_image_dim(item.spec(param_eval["truth"][task]).data, **param_eval["output"][task]["param"])) for task in range(param_eval["tasks"])]
+        truth = [dl_multi.plugin.get_module_task("tftools", param_eval["output"][task]["method"], "normalization")(imgtools.expand_image_dim(item.spec(param_eval["truth"][task]).data, **param_eval["output"][task]["param"])) for task in range(tasks)]
 
-
-        patches = dl_multi.tools.patches.Patches(
+        patches = dl_multi.utils.patches.Patches(
             img, 
-            tasks=param_eval["tasks"],
             obj=param_eval["objective"], 
             categories=len(param_label), 
             limit=param_eval["limit"], 
@@ -91,7 +90,7 @@ def eval(
                 sess.graph.finalize()
                 
                 model_out = sess.run([pred])
-                patch.set_patch([model_out[0][0], model_out[0][2]])
+                patch.set_patch([model_out[0][0], model_out[0][1]])
             patch.time() 
             #   tfsession ---------------------------------------------------
             # ---------------------------------------------------------------            
@@ -99,13 +98,13 @@ def eval(
     # -----------------------------------------------------------------------
         label = item.spec(glu.get_value(param_eval, "truth_label", None)).data if glu.get_value(param_eval, "truth_label", None) else None
       
-        for task in range(param_eval["tasks"]):
+        for task in range(tasks):
             img_out(item.spec(param_eval["truth"][task]).path, patches.get_img(task=task), prefix=param_eval["truth"][task])
         
-        eval_img.update(truth, [patches.get_img(task=task) for task in range(param_eval["tasks"])],
+        eval_img.update(truth, [patches.get_img(task=task) for task in range(tasks)],
             label=label
         )
-        eval_obj.write_log([log_out(item.spec(param_eval["truth"][task]).log,  prefix=param_eval["truth"][task]) for task in range(param_eval["tasks"])], write="w+", current=True, verbose=True)
+        eval_obj.write_log([log_out(item.spec(param_eval["truth"][task]).log,  prefix=param_eval["truth"][task]) for task in range(tasks)], write="w+", current=True, verbose=True)
         print(eval_img.print_current_stats())
         
         time_img.stop()

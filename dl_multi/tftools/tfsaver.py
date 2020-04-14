@@ -20,7 +20,7 @@ class Saver():
         logger=None
     ):
         self._saver = saver
-        self._len = num_epochs
+        self._len = num_epochs 
 
         self._iteration = iteration
         self._steps = steps
@@ -28,6 +28,8 @@ class Saver():
 
         self._logger = logger
 
+        self._index = 0
+        
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def __len__(self):
@@ -36,7 +38,7 @@ class Saver():
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def __iter__(self):
-        self._index = -1
+        self._index = 0
         return self
 
     #   method --------------------------------------------------------------

@@ -5,7 +5,6 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 from dl_multi.utils import imgtools
-import dl_multi.tools.welford
 
 import sklearn
 import numpy as np
@@ -86,28 +85,6 @@ class EvalReg():
 
     def __repr__(self):
         return "{} {}".format(self._scores[0]/self._index, np.sqrt(self._scores[0]/self._index))
-
-#   class -------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-# class EvalReg():
-
-#     def __init__(self, log=None):
-
-#         self._scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
-
-#         self._log = log
-#         if os.path.exists(self._log):
-#             os.remove(self._log)
-
-#     def update(self, pred, truth):
-#         scores = [dl_multi.tools.welford.Welford(), dl_multi.tools.welford.Welford()]
-#         pred = imgtools.project_data_to_img(pred, dtype=np.float32)
-#         truth = imgtools.project_data_to_img(truth, dtype=np.float32)
-#         self._scores[0].update(np.mean(np.absolute(pred-truth)))
-#         self._scores[1].update(np.std(pred-truth))
-    
-#     def __repr__(self):
-#         return "{} {}".format(self._scores[0],self._scores[1])
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------

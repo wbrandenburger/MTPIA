@@ -41,7 +41,7 @@ def task_new_tfrecord(setting="training"):
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_print_tfrecord(setting="training"):
-    """Create new tfrecord file"""
+    """Read and print tfrecord file"""
 
     try:
         dl_multi.tftools.tfrecord.print_tfrecord(

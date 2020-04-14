@@ -23,8 +23,7 @@ class Patches():
     def __init__(
         self, 
         img, 
-        tasks=1, 
-        obj="classification",
+        obj,
         stitch="concatenation", 
         categories=1, 
         dtype=None,
@@ -36,22 +35,22 @@ class Patches():
         self._patch = []
         self._patch_out = []
         self._img = img
-        self._tasks = tasks
 
-        self._stitch = stitch 
- 
         self._obj = obj if isinstance(obj, list) else [obj]
         self._stitch = stitch if isinstance(stitch, list) else [stitch]
 
-        self._img_out = [None]*self._tasks
-        self._img_out_prob = [None]*self._tasks
-        self._categories = [None]*self._tasks
+        self._tasks = len(self._obj)
+
+        self._img_out = list()
+        self._img_out_prob = list()
+        self._categories = list()
         for task in range(self._tasks):
-            self._categories[task] = 1
+            self._categories.append(1)
             if self._obj[task] == "classification":
-                self._categories[task] = categories
-            self._img_out[task] = img_alloc(img, self._categories[task])
-            self._img_out_prob[task] = img_alloc(img, self._categories[task])
+                self._categories[task] =categories
+            self._img_out.append(img_alloc(img, self._categories[task]))
+            self._img_out_prob.append(img_alloc(img, self._categories[task]))
+
         self._limit = limit
         self._margin = margin
         self._pad = pad
@@ -61,6 +60,8 @@ class Patches():
 
         self._logger = logger
 
+        self._index = -1
+        
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def __len__(self):
