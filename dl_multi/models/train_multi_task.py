@@ -9,36 +9,37 @@ import dl_multi.tftools.augmentation
 import dl_multi.tftools.tflosses
 import dl_multi.tftools.tfrecord
 import dl_multi.tftools.tfsaver
+import dl_multi.tftools.tfutils
 import dl_multi.utils.general as glu
 
-import os
 import tensorflow as tf
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def train(
+        param_specs,
+        param_info,
         param_log,
         param_batch,
         param_save, 
         param_train
     ): 
     
-    _logger.debug("Start training multi task classification and regression model with settings:\n'param_log':\t'{}'\n'param_batch':\t'{}',\n'param_save':\t'{}',\n'param_train':\t'{}'".format(param_log, param_batch, param_save, param_train))
+    _logger.debug("Start training multi task classification and regression model with settings:\nparam_specs:\t{}\nparam_info:\t{}\nparam_log:\t{}\nparam_batch:\t{},\nparam_save:\t{},\nparam_train:\t{}".format(param_specs, param_info, param_log, param_batch, param_save, param_train))
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
     
     # Create the log and checkpoint folders if they do not exist
-    folder = dl_multi.utils.general.Folder()
-    checkpoint = folder.set_folder(**param_train["checkpoint"])
-    log_dir = folder.set_folder(**param_log)
+    checkpoint = dl_multi.utils.general.Folder().set_folder(**param_train["checkpoint"])
+    log_dir = dl_multi.utils.general.Folder().set_folder(**param_log)
 
-    img, output_1, output_2 = dl_multi.tftools.tfrecord.read_tfrecord_queue(tf.train.string_input_producer([param_train["tfrecords"]]))
+    tasks = len(param_train["objective"]) if isinstance(param_train["objective"], list) else 1
 
-    img = dl_multi.plugin.get_module_task("tftools", param_train["input"]["method"], "tfnormalization")(img, **param_train["input"]["param"])
-    output_1 = dl_multi.plugin.get_module_task("tftools", param_train["output"][1]["method"], "tfnormalization")(output_1, **param_train["output"][1]["param"])
-    output_2 = dl_multi.plugin.get_module_task("tftools", param_train["output"][0]["method"], "tfnormalization")(output_2, **param_train["output"][0]["param"])
-    img, output_1, output_2 = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(img, output_1, output_2+1, param_train["image-size"], 0.95, 1.1)
+    data = dl_multi.tftools.tfrecord.get_data(param_train["tfrecord"], param_specs, param_info, param_train["input"], param_train["output"])
+    data = dl_multi.tftools.tfutils.preprocessing(data, param_train["input"], param_train["output"])
+
+    img, output_1, output_2 = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(data[0], data[2], data[1], param_train["image-size"], 0.95, 1.1)
 
     objectives = dl_multi.tftools.tflosses.Losses(param_train["objective"], logger=_logger, **glu.get_value(param_train, "multi-task", dict()))
         

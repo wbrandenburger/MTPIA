@@ -13,6 +13,11 @@ def default(x):
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
+def add_value(x, value=0):
+    return x + value
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
 def standardize_per_input(x, source_range=list(), dest_range=[-1,1], dtype=tf.float32):
     """ Linearly scales each image in image to have mean 0 and variance 1.
     https://www.tensorflow.org/api_docs/python/tf/image/per_image_standardization

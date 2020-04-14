@@ -8,8 +8,6 @@ import dl_multi.__init__
 import dl_multi.utils.general as glu
 
 import tensorflow as tf
-# tf.compat.v1.enable_eager_execution()
-
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 

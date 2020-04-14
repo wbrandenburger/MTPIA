@@ -64,6 +64,8 @@ def task_train_multi_task():
     )
 
     dl_multi.models.train_multi_task.train(
+        dl_multi.config.settings._SETTINGS["param_specs"],
+        dl_multi.config.settings._SETTINGS["param_info"],
         dl_multi.config.settings._SETTINGS["param_log"],
         dl_multi.config.settings._SETTINGS["param_batch"],
         dl_multi.config.settings._SETTINGS["param_save"],      
@@ -80,7 +82,7 @@ def task_eval_single_task_classification(setting="training"):
 
     dl_multi.eval.eval_single_task_classification.eval(
         dl_multi.config.settings.get_data(setting),
-        dl_multi.config.settings._SETTINGS["data-tensor-types"],
+        dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
         dl_multi.config.settings._SETTINGS["param_log"],      
         dl_multi.config.settings._SETTINGS["param_eval"],
@@ -98,7 +100,7 @@ def task_eval_single_task_regression(setting="training"):
 
     dl_multi.eval.eval_single_task_regression.eval(
         dl_multi.config.settings.get_data(setting),
-        dl_multi.config.settings._SETTINGS["data-tensor-types"],
+        dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
         dl_multi.config.settings._SETTINGS["param_log"],         
         dl_multi.config.settings._SETTINGS["param_eval"],
@@ -116,7 +118,7 @@ def task_eval_multi_task(setting="training"):
 
     dl_multi.eval.eval_multi_task.eval(
         dl_multi.config.settings.get_data(setting),
-        dl_multi.config.settings._SETTINGS["data-tensor-types"],
+        dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
         dl_multi.config.settings._SETTINGS["param_log"],      
         dl_multi.config.settings._SETTINGS["param_eval"],
@@ -134,7 +136,7 @@ def task_eval_tasks(setting="training"):
 
     dl_multi.eval.eval_tasks.eval(
         dl_multi.config.settings.get_data(setting),
-        dl_multi.config.settings._SETTINGS["data-tensor-types"],
+        dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
         dl_multi.config.settings._SETTINGS["param_log"],                
         dl_multi.config.settings._SETTINGS["param_eval"],

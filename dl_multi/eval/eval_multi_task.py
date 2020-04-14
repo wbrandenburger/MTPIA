@@ -9,8 +9,8 @@ import dl_multi.metrics.metrics
 import dl_multi.plugin
 import dl_multi.utils.patches
 import dl_multi.utils.general as glu
-from dl_multi.utils import imgtools as imgtools 
 import dl_multi.utils.imgio
+from dl_multi.utils import imgtools as imgtools 
 import dl_multi.utils.time
 
 import tensorflow as tf
@@ -19,7 +19,7 @@ import tensorflow as tf
 # ---------------------------------------------------------------------------
 def eval(
     files,
-    specs,
+    param_specs,
     param_io,
     param_log,  
     param_eval, 
@@ -31,12 +31,11 @@ def eval(
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
-    img_in, img_out, log_out, _ = dl_multi.utils.imgio.get_data(files, specs, param_io, param_log=param_log, param_label=param_label)
+    img_in, img_out, log_out, _ = dl_multi.utils.imgio.get_data(files, param_specs, param_io, param_log=param_log, param_label=param_label)
 
     # Create the log and checkpoint folders if they do not exist
-    folder = dl_multi.utils.general.Folder()
-    checkpoint = folder.set_folder(**param_eval["checkpoint"])
-    log_file = folder.set_folder(**param_log)
+    checkpoint = glu.Folder().set_folder(**param_eval["checkpoint"])
+    log_file = glu.Folder().set_folder(**param_log)
     
     tasks = len(param_eval["objective"]) if isinstance(param_eval["objective"], list) else 1
 

@@ -69,8 +69,8 @@ def get_image(
 # ---------------------------------------------------------------------------
 def get_data(
         files,
-        specs, # list()
-        param_io,
+        param_specs, # list()
+        param_io = dict(),
         param_label=dict(), 
         param_show=dict(), # scale=100, show=False, live=True, 
         param_log=dict() # log_dir, ext=".log"
@@ -88,11 +88,14 @@ def get_data(
     for f_set in files:
         img = dl_multi.utils.imgcontainer.ImgListContainer(
             load=load, log_dir=glu.get_value(param_log, "path_dir"))
-        for f, s in zip(f_set, specs):
+        for f, s in zip(f_set, param_specs):
             img.append(path = f, spec=s, **param_show)# scale=100, show=False, live=True
 
         img_in.append(img)
 
+    if not param_io:
+        return img_in
+        
     get_path = glu.PathCreator(**param_io)
 
     img_out = lambda path, img, **kwargs: save_image(get_path(path, **kwargs), img)
