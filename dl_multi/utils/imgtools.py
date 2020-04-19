@@ -13,8 +13,13 @@ from scipy import ndimage
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_img_information(img):
-    return "Shape: {}, Range: {}, {}, {}, {}".format(img.shape, np.min(img), np.max(img), np.mean(img), np.std(img))
+def get_array_info(img, verbose=True):
+    info_str = "Shape: {}, Type: {}, Range: {:.3f}, {:.3f}".format(img.shape, img.dtype, np.min(img), np.max(img))
+
+    if verbose: 
+        info_str = "{}, Stats: {:.3f}, {:.3f}".format(info_str, np.mean(img), np.std(img))
+    
+    return info_str
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------

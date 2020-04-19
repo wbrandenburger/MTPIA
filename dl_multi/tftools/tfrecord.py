@@ -18,19 +18,61 @@ import tifffile
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def get_data(tfrecord, param_specs, param_info, param_input, param_output):
+class tfrecord():
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def __init__(self, tfrecord, param_info, param_input, param_output):
+        self._tfrecord = tfrecord
+        
+        self._param_info = param_info
+        self._param_input = param_input if isinstance(param_input, list) else [param_input]
+        self._param_output = param_output if isinstance(param_output, list) else[param_output]
+
+        self._specs = [item["spec"] for item in self._param_input] + [item["spec"] for item in self._param_output]
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def get_data(self):
+        return read_tfrecord(self._tfrecord, self._param_info, specs=self._specs)
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def get_spec_list(self):
+        return self._specs
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def get_spec_item_list(self, item):
+        return [self._param_info[spec][item] for spec in self._specs]
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_data(tfrecord, param_info, param_input, param_output):
+    return read_tfrecord(tfrecord, param_info, specs=get_spec_list(param_info, param_input, param_output))
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_spec_list(param_info, param_input, param_output):
     param_input = param_input if isinstance(param_input, list) else [param_input]
     param_output = param_output if isinstance(param_output, list) else[param_output]
+    
     specs = [item["spec"] for item in param_input] + [item["spec"] for item in param_output]
 
-    return read_tfrecord(tfrecord, param_specs, param_info, specs=specs)
-    
+    return specs
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def get_spec_item_list(item, param_info, param_input, param_output):
+    specs = get_spec_list(param_info, param_input, param_output)
+    return [param_info[spec][item] for spec in specs]
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def write_tfrecord(files, param_specs, param_tfrecord, param_label=dict()):
     """Create a new tfrecord file."""
 
-    _logger.debug("Start creation of tfrecords with settings:\nparam_specs:\t{}\nparam_tfrecord:\t{}\nparam_label:\t{}".format(param_specs, param_tfrecord, param_label))      
+    _logger.info("Start creation of tfrecords with settings:\nparam_specs:\t{}\nparam_tfrecord:\t{}\nparam_label:\t{}".format(param_specs, param_tfrecord, param_label))      
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -40,7 +82,7 @@ def write_tfrecord(files, param_specs, param_tfrecord, param_label=dict()):
   
     #   execution -----------------------------------------------------------
     # -----------------------------------------------------------------------  
-    _logger.debug("[SAVE] '{}'".format(tfrecord_file))
+    _logger.info("[SAVE] '{}'".format(tfrecord_file))
     with tf.io.TFRecordWriter(tfrecord_file) as writer:
         for data_set in img_in:
             
@@ -62,26 +104,35 @@ def write_tfrecord(files, param_specs, param_tfrecord, param_label=dict()):
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def read_tfrecord(tfrecord, param_specs, param_info, specs=dict()):
-    
+def read_tfrecord(tfrecord, param_info, specs=dict()):
+    """Read from a tfrecord file."""
+
+    _logger.info("Start reading from a tfrecord file with settings:\nparam_tfrecord:\t{}\nparam_label:\t{}".format(param_info, specs))
+
+    #   settings ------------------------------------------------------------
+    # -----------------------------------------------------------------------
     tfrecord_queue = tf.train.string_input_producer(
         [glu.Folder().set_folder(**tfrecord)])
     
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(tfrecord_queue)
     
-    specs = specs if specs else param_specs
+    spec_list = list(param_info.keys())
+    spec_sub_list = specs if specs else spec_list
 
-    data_raw = tf.io.parse_single_example(serialized_example, features=get_features(param_specs))
+    #   execution -----------------------------------------------------------
+    # ----------------------------------------------------------------------- 
+    data_raw = tf.io.parse_single_example(serialized_example, features=get_features(spec_list))
 
     rows = tf.cast(data_raw["rows"], tf.int32)
     cols = tf.cast(data_raw["cols"], tf.int32)
-    return [
-        tf.reshape(
-            tf.decode_raw(data_raw[data_spec], tftypes[param_info[data_spec]["dtype"]]), 
-            tf.stack([rows, cols, tf.cast(data_raw["c-{}".format(data_spec)], tf.int32)])
-        ) for data_spec in param_specs if data_spec in specs
-    ]
+    
+    tensors = [ tf.reshape(
+            tf.decode_raw(data_raw[spec], tftypes[param_info[spec]["dtype"]]), 
+            tf.stack([rows, cols, tf.cast(data_raw["c-{}".format(spec)], tf.int32)])
+        ) for spec in spec_sub_list]
+
+    return tensors
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -90,7 +141,7 @@ def test_tfrecord(files, param_specs, param_info, param_io, param_tfrecord):
 
     tf.compat.v1.enable_eager_execution()
 
-    _logger.debug("Write out items of a tfrecord file with settings:\nparam_specs:\t{}\nparam_info:\t{}\nparam_io:\t{}\nparam_tfrecord:\t{}".format(param_specs, param_info, param_io, param_tfrecord))          
+    _logger.info("Write out items of a tfrecord file with settings:\nparam_specs:\t{}\nparam_info:\t{}\nparam_io:\t{}\nparam_tfrecord:\t{}".format(param_specs, param_info, param_io, param_tfrecord))          
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -116,7 +167,7 @@ def test_tfrecord(files, param_specs, param_info, param_io, param_tfrecord):
         cols = tf.cast(data_raw["cols"], tf.int32)
         for data_item, data_spec in zip(data_set, param_specs):
             channels = tf.cast(data_raw["c-{}".format(data_spec)], tf.int32)
-            _logger.debug("[SHAPE] {}, {}, {}".format(rows.numpy(), cols.numpy(), channels.numpy()))
+            _logger.info("[SHAPE] {}, {}, {}".format(rows.numpy(), cols.numpy(), channels.numpy()))
 
             dtype = tftypes[param_info[data_spec]["dtype"]]
             img = tf.reshape(tf.decode_raw(data_raw[data_spec], dtype), tf.stack([rows, cols, channels]))

@@ -34,6 +34,7 @@ def task_train_single_task_classification():
     )
 
     dl_multi.models.train_single_task_classification.train(
+        dl_multi.config.settings._SETTINGS["param_info"],        
         dl_multi.config.settings._SETTINGS["param_log"],
         dl_multi.config.settings._SETTINGS["param_batch"],
         dl_multi.config.settings._SETTINGS["param_save"],      
@@ -49,6 +50,7 @@ def task_train_single_task_regression():
     )
 
     dl_multi.models.train_single_task_regression.train(
+        dl_multi.config.settings._SETTINGS["param_info"],
         dl_multi.config.settings._SETTINGS["param_log"],
         dl_multi.config.settings._SETTINGS["param_batch"],
         dl_multi.config.settings._SETTINGS["param_save"],      
@@ -64,7 +66,6 @@ def task_train_multi_task():
     )
 
     dl_multi.models.train_multi_task.train(
-        dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_info"],
         dl_multi.config.settings._SETTINGS["param_log"],
         dl_multi.config.settings._SETTINGS["param_batch"],

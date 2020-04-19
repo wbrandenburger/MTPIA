@@ -243,7 +243,7 @@ def blubbblubb(image, height, size, minscale, maxscale):
   
   img_crop = tf.image.resize_image_with_crop_or_pad(img_crop, size[0], size[1]) 
   height_crop = tf.image.resize_image_with_crop_or_pad(height_crop, size[0], size[1])
-  return img_crop, height_crop
+  return [img_crop, height_crop]
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def rnd_crop_rotate_with_flips_IR(image, annotation, size, minscale, maxscale):

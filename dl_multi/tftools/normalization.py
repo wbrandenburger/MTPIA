@@ -22,7 +22,7 @@ def standardize_per_input(x, source_range=list(), dest_range=[-1,1], dtype=np.fl
     x_normed = x.astype(dtype)
     
     if not source_range:
-        source_range = [np.min(), np.max()]
+        source_range = [np.min(x_normed), np.max(x_normed)]
 
     x_normed = (x_normed-source_range[0]) / (source_range[1]-source_range[0])
     x_normed = x_normed * (dest_range[1]-dest_range[0]) + dest_range[0]

@@ -46,5 +46,5 @@ class Scores():
     # -----------------------------------------------------------------------
     def logger(self, log_str):
         if self._logger is not None:
-            self._logger.debug(log_str)
+            self._logger.info(log_str)
         return log_str

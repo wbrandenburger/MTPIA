@@ -5,7 +5,7 @@
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 from dl_multi.__init__ import _logger 
-import dl_multi.tftools.augmentation
+import dl_multi.tftools.tfaugmentation
 import dl_multi.tftools.tflosses
 import dl_multi.tftools.tfrecord
 import dl_multi.tftools.tfsaver
@@ -17,7 +17,6 @@ import tensorflow as tf
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def train(
-        param_specs,
         param_info,
         param_log,
         param_batch,
@@ -25,7 +24,7 @@ def train(
         param_train
     ): 
     
-    _logger.debug("Start training multi task classification and regression model with settings:\nparam_specs:\t{}\nparam_info:\t{}\nparam_log:\t{}\nparam_batch:\t{},\nparam_save:\t{},\nparam_train:\t{}".format(param_specs, param_info, param_log, param_batch, param_save, param_train))
+    _logger.info("Start training multi task classification and regression model with settings:\nparam_info:\t{}\nparam_log:\t{}\nparam_batch:\t{},\nparam_save:\t{},\nparam_train:\t{}".format( param_info, param_log, param_batch, param_save, param_train))
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -36,10 +35,10 @@ def train(
 
     tasks = len(param_train["objective"]) if isinstance(param_train["objective"], list) else 1
 
-    data = dl_multi.tftools.tfrecord.get_data(param_train["tfrecord"], param_specs, param_info, param_train["input"], param_train["output"])
+    data_io = dl_multi.tftools.tfrecord.tfrecord(param_train["tfrecord"], param_info, param_train["input"], param_train["output"])
+    data = data_io.get_data()
     data = dl_multi.tftools.tfutils.preprocessing(data, param_train["input"], param_train["output"])
-
-    img, truth, _ = dl_multi.tftools.augmentation.rnd_crop_rotate_90_with_flips_height(data[0], data[1], data[1], param_train["image-size"], 0.95, 1.1)
+    data = dl_multi.tftools.tfaugmentation.rnd_crop(data, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
 
     objectives = dl_multi.tftools.tflosses.Losses(param_train["objective"], logger=_logger, **glu.get_value(param_train, "multi-task", dict()))
 
@@ -47,12 +46,16 @@ def train(
     # -----------------------------------------------------------------------
 
     # Create batches by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
-    img_batch, truth_batch = tf.train.shuffle_batch(
-        [img, truth], **param_batch)
+    data_batch = tf.train.shuffle_batch(data, **param_batch)
+   
+    input_batch = data_batch[0]
+    output_batch = data_batch[1:] if isinstance(data_batch[1:], list) else [data_batch[1:]]
 
     with tf.variable_scope("net"):
-        pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(img_batch)
-    objectives.update([truth_batch], list(pred))
+        pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(input_batch)
+        pred = list(pred) if isinstance(pred, tuple) else [pred]
+
+    objectives.update(output_batch, pred)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step = tf.contrib.opt.AdamWOptimizer(0).minimize(objectives.get_loss())

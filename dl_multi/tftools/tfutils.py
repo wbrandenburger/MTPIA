@@ -16,6 +16,7 @@ def preprocessing(data, param_input, param_output):
     param_output = param_output if isinstance(param_output, list) else[param_output]
     
     param = param_input + param_output
+
     return [dl_multi.plugin.get_module_task("tftools", param[idx]["method"], "tfnormalization")(data[idx], **param[idx]["param"]) for idx in range(len(data))]
 
 """ The following functions can be used to convert a value to a type compatible with tf.Example.

@@ -27,7 +27,7 @@ def eval(
     param_class
     ): 
     
-    _logger.debug("Start training multi task classification and regression model with settings:\nparam_io:\t{}\nparam_log:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(param_io, param_log, param_eval, param_label, param_class))  
+    _logger.info("Start training multi task classification and regression model with settings:\nparam_io:\t{}\nparam_log:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(param_io, param_log, param_eval, param_label, param_class))  
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -108,8 +108,8 @@ def eval(
         print(eval_img.print_current_stats())
         
         time_img.stop()
-        _logger.debug(time_img.overall())
-        _logger.debug(time_img.stats())
+        _logger.info(time_img.overall())
+        _logger.info(time_img.stats())
  
     eval_obj.write_log(log_file, verbose=True)
     print(eval_obj)   

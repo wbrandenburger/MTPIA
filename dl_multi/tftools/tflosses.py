@@ -21,6 +21,7 @@ def get_accuracy(truth, pred, dtype=tf.float32):
 
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 class Losses():
 
     #   method --------------------------------------------------------------
@@ -41,14 +42,14 @@ class Losses():
 
         self._tasks = len(self._obj)
 
-        self._loss_handle = list()
+        self._loss_handle = [None]*self._tasks
         for task in range(self._tasks):
             if self._obj[task] == "classification":
-                self._loss_handle.append(tf.nn.sparse_softmax_cross_entropy_with_logits)
+                    self._loss_handle[task] = tf.nn.sparse_softmax_cross_entropy_with_logits
             elif self._obj[task] == "regression":
-                self._loss_handle.append(tf.losses.mean_squared_error)
+                self._loss_handle[task] = tf.losses.mean_squared_error
 
-        self._task_weights = task_weights if task_weights else [1./self._tasks]*self._tasks 
+        self._task_weights = task_weights if task_weights else [tf.to_float(1./self._tasks)]*self._tasks 
 
         self._loss_single_task = [tf.to_float(-1.)]*self._tasks
         self._single_task_supp = [tf.to_float(-1.)]*self._tasks
@@ -59,45 +60,56 @@ class Losses():
     # -----------------------------------------------------------------------
     def logger(self, log_str):
         if self._logger is not None:
-            self._logger.debug(log_str)
+            self._logger.info(log_str)
         return log_str
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def update(self, truth, pred, weights=None, task_weights=None):
-        truth = truth if isinstance(truth, list) else [truth]   
-        pred = pred if isinstance(pred, list) else [pred]
+        # truth = truth if isinstance(truth, list) else [truth]   
+        # pred = pred if isinstance(pred, list) else [pred]
 
         for task in range(self._tasks):
             if self._obj[task] == "classification":
-                labels = tf.squeeze(tf.maximum(truth[task]-1, 0), axis=3)
-                try:
-                    if len(weights):
-                        pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.))) without subtracting
-                except TypeError:
-                     weights = tf.ones(labels.shape, tf.bool)
-                self._loss_single_task[task] = tf.reduce_mean(tf.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=tf.to_int32(labels), logits=pred[task]), weights = weights))
-
-                self._single_task_supp[task] = get_accuracy(labels, pred[task])
+                self.update_task_classification(task, truth, pred, weights)
             elif self._obj[task] == "regression":
-                try:
-                    if len(weights):
-                        pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.)))
-                except TypeError:
-                     weights = tf.ones(truth[task].shape, tf.bool)
-                self._loss_single_task[task] = tf.losses.mean_squared_error(truth[task], pred[task], weights = weights) #tf.expand_dims(weights, axis=3) expand dims ?
+                self.update_task_regression(task, truth, pred, weights)
 
         if not task_weights:
             task_weights = self._task_weights
 
-        self._loss = 0.0
+        self._loss = tf.to_float(0.0)
         for task in range(self._tasks):
-            self._loss += self._loss_single_task[task] * task_weights[task]
+            self._loss += tf.to_float(self._loss_single_task[task] * task_weights[task])
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def update_task_classification(self, task, truth, pred, weights):
+        labels = tf.squeeze(tf.maximum(truth[task]-1, 0), axis=3)
+        try:
+            if len(weights):
+                pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.))) without subtracting
+        except TypeError:
+                weights = tf.ones(labels.shape, tf.bool)
+        self._loss_single_task[task] = tf.reduce_mean(
+            tf.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=tf.to_int32(labels), logits=pred[task]), weights = weights))
+
+        self._single_task_supp[task] = get_accuracy(labels, pred[task])
+
+    #   method --------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    def update_task_regression(self, task, truth, pred, weights):
+        try:
+            if len(weights):
+                pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.)))
+        except TypeError:
+                weights = tf.ones(truth[task].shape, tf.bool)
+        self._loss_single_task[task] = tf.losses.mean_squared_error(truth[task], pred[task], weights = weights) #tf.expand_dims(weights, axis=3) expand dims ?
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def get_loss(self, task=None):
-        if task:
+        if task is not None:
             return self._loss_single_task[task]
         return self._loss
 
@@ -106,6 +118,7 @@ class Losses():
     def get_stats_str(self, index, stats):
         stats_str="==== step {} =>".format(index)
         stats_str="{} overall loss: {:.3f}".format(stats_str, stats["multi-task"])
+
         for task in range(self._tasks):
             stats_str="{} {}: {:.3f}".format(stats_str, self._obj[task], stats["single-task"][task])
 
