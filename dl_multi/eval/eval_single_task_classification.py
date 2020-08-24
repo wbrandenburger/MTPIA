@@ -38,6 +38,7 @@ def eval(
     log_file = glu.Folder().set_folder(**param_log)
 
     tasks = len(param_eval["objective"]) if isinstance(param_eval["objective"], list) else 1
+    print(tasks)
 
     eval_obj = dl_multi.metrics.metrics.Metrics(
         param_eval["objective"], 
@@ -56,6 +57,8 @@ def eval(
     for item, time_img, eval_img in zip(img_in, time_obj_img, eval_obj):
         img = dl_multi.plugin.get_module_task("tftools", param_eval["input"]["method"], "normalization")(item.spec("image").data, **param_eval["input"]["param"])
         truth = [dl_multi.plugin.get_module_task("tftools", param_eval["output"][task]["method"], "normalization")(imgtools.expand_image_dim(item.spec(param_eval["truth"][task]).data, **param_eval["output"][task]["param"])) for task in range(tasks)]
+        # print(type(truth), len(truth))
+        # print(truth[0])
 
         patches = dl_multi.utils.patches.Patches(
             img,

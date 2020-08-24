@@ -328,8 +328,8 @@ def single_task_classification(vaihingen_batch):
     #  kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
     #  name='reg2_conv_vaihingen')
 
-  # argmax_vaihingen = tf.argmax(x_vaihingen_pred1, axis=-1, name='argmax_vaihingen')
+  argmax_vaihingen = tf.argmax(x_vaihingen_pred1, axis=-1, name='argmax_vaihingen')
 
-  return x_vaihingen_pred1 # , argmax_vaihingen
+  return x_vaihingen_pred1 , argmax_vaihingen
 
 
