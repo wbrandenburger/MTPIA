@@ -88,9 +88,9 @@ def task_eval_single_task_classification(setting="training"):
         dl_multi.config.settings._SETTINGS["param_log"],      
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
-        dl_multi.config.settings._SETTINGS["param_class"]
+        dl_multi.config.settings._SETTINGS["param_classes"]
     )
-
+    
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def task_eval_single_task_regression(setting="training"):
@@ -106,7 +106,7 @@ def task_eval_single_task_regression(setting="training"):
         dl_multi.config.settings._SETTINGS["param_log"],         
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
-        dl_multi.config.settings._SETTINGS["param_class"]
+        dl_multi.config.settings._SETTINGS["param_classes"]
     )
 
 #   function ----------------------------------------------------------------
@@ -124,7 +124,7 @@ def task_eval_multi_task(setting="training"):
         dl_multi.config.settings._SETTINGS["param_log"],      
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
-        dl_multi.config.settings._SETTINGS["param_class"]
+        dl_multi.config.settings._SETTINGS["param_classes"]
     )
 
 #   function ----------------------------------------------------------------
@@ -142,7 +142,7 @@ def task_eval_tasks(setting="training"):
         dl_multi.config.settings._SETTINGS["param_log"],                
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
-        dl_multi.config.settings._SETTINGS["param_class"]
+        dl_multi.config.settings._SETTINGS["param_classes"]
     )
 
 #   function ----------------------------------------------------------------

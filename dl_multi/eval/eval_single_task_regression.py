@@ -24,13 +24,14 @@ def eval(
     param_log,  
     param_eval, 
     param_label,
-    param_class
+    param_classes
     ): 
     
-    _logger.info("Start training multi task classification and regression model with settings:\nparam_io:\t{}\nparam_log:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(param_io, param_log, param_eval, param_label, param_class))    
+    _logger.info("Start training multi task classification and regression model with settings:\nparam_io:\t{}\nparam_log:\t{}\nparam_eval:\t{}\nparam_label:\t{}\nparam_class:\t{}".format(param_io, param_log, param_eval, param_label, param_classes))  
 
     #   settings ------------------------------------------------------------
     # -----------------------------------------------------------------------
+    param_class = [c["name"] for c in param_classes]
     img_in, img_out, log_out, _ = dl_multi.utils.imgio.get_data(files, param_specs, param_io, param_log=param_log, param_label=param_label)
 
     # Create the log and checkpoint folders if they do not exist
