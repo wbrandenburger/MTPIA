@@ -36,9 +36,10 @@ def train(
     tasks = len(param_train["objective"]) if isinstance(param_train["objective"], list) else 1
     
     data_io = dl_multi.tftools.tfrecord.tfrecord(param_train["tfrecord"], param_info, param_train["input"], param_train["output"])
-    datas = data_io.get_data()
-    datam = dl_multi.tftools.tfutils.preprocessing(datas, param_train["input"], param_train["output"])
-    datal = dl_multi.tftools.tfaugmentation.rnd_crop(datam, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
+    data = data_io.get_data()
+    data = dl_multi.tftools.tfutils.preprocessing(data, param_train["input"], param_train["output"])
+    datal = dl_multi.tftools.tfaugmentation.rnd_crop(data, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
+
     objectives = dl_multi.tftools.tflosses.Losses(param_train["objective"], logger=_logger, **glu.get_value(param_train, "multi-task", dict()))
         
     #   execution -----------------------------------------------------------
@@ -74,9 +75,7 @@ def train(
 
         # Iteration over epochs
         for epoch in saver:
-            # a = tf.reduce_max(output_batch[1])
             stats_epoch, _ = sess.run([objectives.get_stats(), train_step])
-            # print(a_np)
             print(objectives.get_stats_str(epoch._index, stats_epoch))
             saver.save(sess, checkpoint, step=True)
 
