@@ -85,7 +85,7 @@ def tiramisu56(vaihingen_batch):
   
   concats = []
   
-  with tf.variable_scope('encoder'):  
+  with tf.compat.v1.variable_scope('encoder'):  
    
     x = tf.layers.conv2d(
       inputs=vaihingen_batch,
@@ -105,7 +105,7 @@ def tiramisu56(vaihingen_batch):
     # bottleneck block
     x = dense_block(x, 4, 12, 0.2, name='bottleneck')
   
-  with tf.variable_scope('decoder'):
+  with tf.compat.v1.variable_scope('decoder'):
     # upscale
     for i, block_nb in enumerate(range(5, 1, -1)):
       x = transition_up(x, x.get_shape()[-1], name='tu_'+str(block_nb))
@@ -119,7 +119,7 @@ def tiramisu56(vaihingen_batch):
     x_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen')
     dsm_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen_dsm')
       
-  with tf.variable_scope('prediction_vaihingen'):
+  with tf.compat.v1.variable_scope('prediction_vaihingen'):
     
     x_vaihingen_pred1 = tf.layers.conv2d(
       inputs=x_vaihingen,
@@ -140,7 +140,7 @@ def tiramisu56(vaihingen_batch):
     #  kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
     #  name='pred2_conv_vaihingen')
       
-  with tf.variable_scope('regression_vaihingen'):
+  with tf.compat.v1.variable_scope('regression_vaihingen'):
 
     x_vaihingen_reg1 = tf.layers.conv2d(
       inputs=dsm_vaihingen,
@@ -170,7 +170,7 @@ def tiramisu56_dsm(vaihingen_batch):
   
   concats = []
   
-  with tf.variable_scope('encoder'):  
+  with tf.compat.v1.variable_scope('encoder'):  
    
     x = tf.layers.conv2d(
       inputs=vaihingen_batch,
@@ -190,7 +190,7 @@ def tiramisu56_dsm(vaihingen_batch):
     # bottleneck block
     x = dense_block(x, 4, 12, 0.2, name='bottleneck')
   
-  with tf.variable_scope('decoder'):
+  with tf.compat.v1.variable_scope('decoder'):
     # upscale
     for i, block_nb in enumerate(range(5, 1, -1)):
       x = transition_up(x, x.get_shape()[-1], name='tu_'+str(block_nb))
@@ -204,7 +204,7 @@ def tiramisu56_dsm(vaihingen_batch):
     #x_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen')
     dsm_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen_dsm')
       
-  # with tf.variable_scope('prediction_vaihingen'):
+  # with tf.compat.v1.variable_scope('prediction_vaihingen'):
     
   #   x_vaihingen_pred1 = tf.layers.conv2d(
   #     inputs=x_vaihingen,
@@ -225,7 +225,7 @@ def tiramisu56_dsm(vaihingen_batch):
     #  kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
     #  name='pred2_conv_vaihingen')
       
-  with tf.variable_scope('regression_vaihingen'):
+  with tf.compat.v1.variable_scope('regression_vaihingen'):
     
     x_vaihingen_reg1 = tf.layers.conv2d(
       inputs=dsm_vaihingen,
@@ -254,7 +254,7 @@ def tiramisu56_sem(vaihingen_batch):
   
   concats = []
   
-  with tf.variable_scope('encoder'):  
+  with tf.compat.v1.variable_scope('encoder'):  
    
     x = tf.layers.conv2d(
       inputs=vaihingen_batch,
@@ -274,7 +274,7 @@ def tiramisu56_sem(vaihingen_batch):
     # bottleneck block
     x = dense_block(x, 4, 12, 0.2, name='bottleneck')
   
-  with tf.variable_scope('decoder'):
+  with tf.compat.v1.variable_scope('decoder'):
     # upscale
     for i, block_nb in enumerate(range(5, 1, -1)):
       x = transition_up(x, x.get_shape()[-1], name='tu_'+str(block_nb))
@@ -288,7 +288,7 @@ def tiramisu56_sem(vaihingen_batch):
     x_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen')
     # dsm_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen_dsm')
       
-  with tf.variable_scope('prediction_vaihingen'):
+  with tf.compat.v1.variable_scope('prediction_vaihingen'):
     
     x_vaihingen_pred1 = tf.layers.conv2d(
       inputs=x_vaihingen,
@@ -309,7 +309,7 @@ def tiramisu56_sem(vaihingen_batch):
     #  kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
     #  name='pred2_conv_vaihingen')
       
-  # # with tf.variable_scope('regression_vaihingen'):
+  # # with tf.compat.v1.variable_scope('regression_vaihingen'):
     
   # #   x_vaihingen_reg1 = tf.layers.conv2d(
   # #     inputs=dsm_vaihingen,

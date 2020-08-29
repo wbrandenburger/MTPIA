@@ -79,15 +79,15 @@ def eval(
             
             data = tf.expand_dims(patch.get_image_patch(), 0)
             
-            with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
+            with tf.compat.v1.variable_scope("net", reuse=tf.AUTO_REUSE):
                 pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
 
             #   tfsession ---------------------------------------------------
             # ---------------------------------------------------------------
             # Operation for initializing the variables.
-            init_op = tf.global_variables_initializer()
-            saver = tf.train.Saver()
-            with tf.Session() as sess:
+            init_op = tf.compat.v1.global_variables_initializer()
+            saver = tf.compat.v1.train.Saver()
+            with tf.compat.v1.Session() as sess:
                 sess.run(init_op)
                 saver.restore(sess, checkpoint)
                 sess.graph.finalize()

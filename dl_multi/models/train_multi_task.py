@@ -36,27 +36,26 @@ def train(
     tasks = len(param_train["objective"]) if isinstance(param_train["objective"], list) else 1
     
     data_io = dl_multi.tftools.tfrecord.tfrecord(param_train["tfrecord"], param_info, param_train["input"], param_train["output"])
-    data = data_io.get_data()
-    data = dl_multi.tftools.tfutils.preprocessing(data, param_train["input"], param_train["output"])
-    data = dl_multi.tftools.tfaugmentation.rnd_crop(data, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
-
+    datas = data_io.get_data()
+    datam = dl_multi.tftools.tfutils.preprocessing(datas, param_train["input"], param_train["output"])
+    datal = dl_multi.tftools.tfaugmentation.rnd_crop(datam, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
     objectives = dl_multi.tftools.tflosses.Losses(param_train["objective"], logger=_logger, **glu.get_value(param_train, "multi-task", dict()))
         
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
 
     # Create batches by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
-    data_batch = tf.train.shuffle_batch(data, **param_batch)
+    data_batch = tf.train.shuffle_batch(datal, **param_batch)
    
     input_batch = data_batch[0]
     output_batch = data_batch[1:] if isinstance(data_batch[1:], list) else [data_batch[1:]]
 
-    with tf.variable_scope("net"):
+    with tf.compat.v1.variable_scope("net"):
         pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(input_batch)
         pred = list(pred) if isinstance(pred, tuple) else [pred]
 
     objectives.update(output_batch, pred)
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step = tf.contrib.opt.AdamWOptimizer(0).minimize(objectives.get_loss())
 
@@ -64,10 +63,10 @@ def train(
     # -----------------------------------------------------------------------
     
     # Operation for initializing the variables.
-    init_op = tf.group(tf.global_variables_initializer(),
-                    tf.local_variables_initializer())                
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger)
-    with tf.Session() as sess:
+    init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                   tf.compat.v1.local_variables_initializer())                
+    saver = dl_multi.tftools.tfsaver.Saver(tf.compat.v1.train.Saver(), **param_save, logger=_logger)
+    with tf.compat.v1.Session() as sess:
         sess.run(init_op)
     
         coord = tf.train.Coordinator()
@@ -75,7 +74,9 @@ def train(
 
         # Iteration over epochs
         for epoch in saver:
+            # a = tf.reduce_max(output_batch[1])
             stats_epoch, _ = sess.run([objectives.get_stats(), train_step])
+            # print(a_np)
             print(objectives.get_stats_str(epoch._index, stats_epoch))
             saver.save(sess, checkpoint, step=True)
 

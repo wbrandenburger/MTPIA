@@ -51,12 +51,12 @@ def train(
     input_batch = data_batch[0]
     output_batch = data_batch[1:] if isinstance(data_batch[1:], list) else [data_batch[1:]]
 
-    with tf.variable_scope("net"):
+    with tf.compat.v1.variable_scope("net"):
         pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(input_batch)
         pred = list(pred) if isinstance(pred, tuple) else [pred]
 
     objectives.update(output_batch, pred)
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step = tf.contrib.opt.AdamWOptimizer(0).minimize(objectives.get_loss())
 
@@ -64,10 +64,10 @@ def train(
     # -----------------------------------------------------------------------
 
     # Operation for initializing the variables.
-    init_op = tf.group(tf.global_variables_initializer(),
-                    tf.local_variables_initializer())              
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger)
-    with tf.Session() as sess:
+    init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                   tf.compat.v1.local_variables_initializer())              
+    saver = dl_multi.tftools.tfsaver.Saver(tf.compat.v1.train.Saver(), **param_save, logger=_logger)
+    with tf.compat.v1.Session() as sess:
         sess.run(init_op)
             
         coord = tf.train.Coordinator()

@@ -50,20 +50,20 @@ image_batch_vaihingen, annotation_batch_vaihingen, dsm_batch_vaihingen = tf.trai
     num_threads=16
 )
                                              
-with tf.variable_scope("net"):
+with tf.compat.v1.variable_scope("net"):
   pred_vaihingen, argmax_vaihingen, reg_vaihingen = tiramisu56(image_batch_vaihingen)
 
 mask_vaihingen = tf.to_float(tf.squeeze(tf.greater(annotation_batch_vaihingen, 0.)))
 labels_vaihingen = tf.to_int32(tf.squeeze(tf.maximum(annotation_batch_vaihingen-1, 0), axis=3))
 
-pred_loss_vaihingen = tf.reduce_mean(tf.losses.compute_weighted_loss(
+pred_loss_vaihingen = tf.reduce_mean(tf.compat.v1.losses.compute_weighted_loss(
     losses = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels_vaihingen, logits=pred_vaihingen),
     weights = tf.to_float(mask_vaihingen)))
 
 acc_vaihingen = 1 - ( tf.count_nonzero((tf.to_float(argmax_vaihingen)-tf.to_float(labels_vaihingen)), dtype=tf.float32)
               / (image_train_size[0] * image_train_size[1] * batch_size_vaihingen ))
               
-reg_loss_vaihingen = tf.losses.mean_squared_error(dsm_batch_vaihingen, reg_vaihingen, weights = tf.expand_dims(mask_vaihingen, axis=3))
+reg_loss_vaihingen = tf.compat.v1.losses.mean_squared_error(dsm_batch_vaihingen, reg_vaihingen, weights = tf.expand_dims(mask_vaihingen, axis=3))
 
 
 task_weight = 0.9
@@ -73,7 +73,7 @@ loss_vaihingen = task_weight * pred_loss_vaihingen + (1. - task_weight) * reg_lo
 ### end if vaihingen
 
 
-update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
 with tf.control_dependencies(update_ops):
   train_step_both = tf.contrib.opt.AdamWOptimizer(0).minimize(loss_vaihingen)
       
@@ -92,12 +92,12 @@ if not os.path.exists(log_folder):
      os.makedirs(log_folder)
 
 # The op for initializing the variables.
-init_op = tf.group(tf.global_variables_initializer(),
-                   tf.local_variables_initializer())
+init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                  tf.compat.v1.local_variables_initializer())
                    
-saver = tf.train.Saver()
+saver = tf.compat.v1.train.Saver()
 
-with tf.Session() as sess:
+with tf.compat.v1.Session() as sess:
 
   sess.run(init_op)
     

@@ -187,15 +187,15 @@ for name in os.listdir(model_dir):
       
       #print(data.shape)
       
-      with tf.variable_scope("net", reuse=tf.AUTO_REUSE):
+      with tf.compat.v1.variable_scope("net", reuse=tf.AUTO_REUSE):
       ## orig
         pred = tiramisu56(data)
       
-      init_op = tf.global_variables_initializer()
-      saver = tf.train.Saver()
+      init_op = tf.compat.v1.global_variables_initializer()
+      saver = tf.compat.v1.train.Saver()
       
       
-      with tf.Session() as sess:
+      with tf.compat.v1.Session() as sess:
 
         sess.run(init_op)
         saver.restore(sess, model_name)

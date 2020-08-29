@@ -47,7 +47,7 @@ class Losses():
             if self._obj[task] == "classification":
                     self._loss_handle[task] = tf.nn.sparse_softmax_cross_entropy_with_logits
             elif self._obj[task] == "regression":
-                self._loss_handle[task] = tf.losses.mean_squared_error
+                self._loss_handle[task] = tf.compat.v1.losses.mean_squared_error
 
         self._task_weights = task_weights if task_weights else [tf.to_float(1./self._tasks)]*self._tasks 
 
@@ -92,7 +92,7 @@ class Losses():
         except TypeError:
                 weights = tf.ones(labels.shape, tf.bool)
         self._loss_single_task[task] = tf.reduce_mean(
-            tf.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=tf.to_int32(labels), logits=pred[task]), weights = weights))
+            tf.compat.v1.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=tf.to_int32(labels), logits=pred[task]), weights = weights))
 
         self._single_task_supp[task] = get_accuracy(labels, pred[task])
 
@@ -104,7 +104,7 @@ class Losses():
                 pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.)))
         except TypeError:
                 weights = tf.ones(truth[task].shape, tf.bool)
-        self._loss_single_task[task] = tf.losses.mean_squared_error(truth[task], pred[task], weights = weights) #tf.expand_dims(weights, axis=3) expand dims ?
+        self._loss_single_task[task] = tf.compat.v1.losses.mean_squared_error(truth[task], pred[task], weights = weights) #tf.expand_dims(weights, axis=3) expand dims ?
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------

@@ -49,7 +49,7 @@ def train(
 
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
-    with tf.variable_scope("net"):
+    with tf.compat.v1.variable_scope("net"):
         pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(img_batch)
 
     pred_losses = losses.update([truth_batch, height_batch], list(pred))
@@ -57,7 +57,7 @@ def train(
     task_weight = 0.9
     loss = task_weight * pred_losses[0]  + (1. - task_weight) * pred_losses[2] 
 
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step_both = tf.contrib.opt.AdamWOptimizer(0).minimize(loss)
         
@@ -72,11 +72,11 @@ def train(
     #   tfsession -----------------------------------------------------------
     # -----------------------------------------------------------------------
     # Operation for initializing the variables.
-    init_op = tf.group(tf.global_variables_initializer(),
-                    tf.local_variables_initializer())                
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger
+    init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                   tf.compat.v1.local_variables_initializer())                
+    saver = dl_multi.tftools.tfsaver.Saver(tf.compat.v1.train.Saver(), **param_save, logger=_logger
     )
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
         sess.run(init_op)
     
         coord = tf.train.Coordinator()

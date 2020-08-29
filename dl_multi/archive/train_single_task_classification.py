@@ -43,14 +43,14 @@ def train(
 
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
-    with tf.variable_scope("net"):
+    with tf.compat.v1.variable_scope("net"):
         pred, argmax = dl_multi.plugin.get_module_task("models", *param_train["model"])(img_batch)
 
     mask = tf.to_float(tf.squeeze(tf.greater(truth_batch, 0.)))
     truth = tf.to_int32(tf.squeeze(tf.maximum(truth_batch-1, 0), axis=3))
 
     loss = tf.reduce_mean(
-        tf.losses.compute_weighted_loss(
+        tf.compat.v1.losses.compute_weighted_loss(
             losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
                 labels=truth, 
                 logits=pred
@@ -62,7 +62,7 @@ def train(
     acc = 1 - ( tf.count_nonzero((tf.to_float(argmax)-tf.to_float(truth)), dtype=tf.float32)
             / (param_train["image-size"][0] * param_train["image-size"][1] * param_batch["batch_size"]))
 
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step_both = tf.contrib.opt.AdamWOptimizer(0).minimize(loss)
         
@@ -74,10 +74,10 @@ def train(
     #   tfsession -----------------------------------------------------------
     # -----------------------------------------------------------------------
     # The op for initializing the variables.
-    init_op = tf.group(tf.global_variables_initializer(),
-                    tf.local_variables_initializer()) 
-    saver = dl_multi.tftools.tfsaver.Saver(tf.train.Saver(), **param_save, logger=_logger)
-    with tf.Session() as sess:
+    init_op = tf.group(tf.compat.v1.global_variables_initializer(),
+                   tf.compat.v1.local_variables_initializer()) 
+    saver = dl_multi.tftools.tfsaver.Saver(tf.compat.v1.train.Saver(), **param_save, logger=_logger)
+    with tf.compat.v1.Session() as sess:
         sess.run(init_op)
             
         coord = tf.train.Coordinator()
