@@ -57,7 +57,7 @@ class Losses():
 
         self._logger = logger
 
-        self._vis_divices = os.envrion.get("CUDA_VISIBLE_DEVICES")
+        self._vis_divices = os.environ.get("CUDA_VISIBLE_DEVICES")
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
