@@ -6,6 +6,7 @@
 # ---------------------------------------------------------------------------
 from dl_multi.utils import imgtools
 
+import os
 import tensorflow as tf
 
 #   function ----------------------------------------------------------------
@@ -55,6 +56,8 @@ class Losses():
         self._single_task_supp = [tf.to_float(-1.)]*self._tasks
 
         self._logger = logger
+
+        self._vis_divices = os.envrion.get("CUDA_VISIBLE_DEVICES")
 
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -116,7 +119,7 @@ class Losses():
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def get_stats_str(self, index, stats):
-        stats_str="==== step {} =>".format(index)
+        stats_str="==== cuda_device {}, step {} =>".format(self._vis_divices, index)
         stats_str="{} overall loss: {:.3f}".format(stats_str, stats["multi-task"])
 
         for task in range(self._tasks):

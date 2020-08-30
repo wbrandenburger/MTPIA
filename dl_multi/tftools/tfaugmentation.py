@@ -6,6 +6,8 @@
 # ---------------------------------------------------------------------------
 import tensorflow as tf
 
+# TODO: Problems with tfaugmentation only when calling multi-task environmens
+
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
 def rnd_crop(
