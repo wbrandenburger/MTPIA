@@ -37,7 +37,8 @@ def standardize_per_input(x, source_range=list(), dest_range=[-1,1], dtype=tf.fl
 def normalize_per_input(x, axes=[0,1,2], epsilon=1e-8, dtype=tf.float32):
     x_normed = tf.cast(x, dtype)
     
-    mean, variance = tf.nn.moments(x_normed, axes=axes)
-    x_normed = (x_normed - mean) / tf.sqrt(variance + epsilon) # epsilon to avoid dividing by zero
-
+    # mean, variance = tf.nn.moments(x_normed, axes=axes)
+    # x_normed = (x_normed - mean) / tf.sqrt(variance + epsilon) # epsilon to avoid dividing by zero
+    x_normed = tf.image.per_image_standardization(x_normed)
+    
     return x_normed

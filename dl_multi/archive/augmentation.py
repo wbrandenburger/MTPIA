@@ -129,7 +129,7 @@ def rnd_crop_rotate_with_flips_height(image, annotation, size, minscale, maxscal
   
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-def rnd_crop_rotate_90_with_flips_height(image, height, annotation, size, minscale, maxscale):
+def rnd_crop_rotate_90_with_flips_height(image, annotation, height, size, minscale, maxscale):
 
   scale = tf.random.uniform([2], minval=minscale, maxval=maxscale)
   x = tf.to_int32(size[0]/scale[0])
@@ -190,7 +190,7 @@ def rnd_crop_rotate_90_with_flips_height(image, height, annotation, size, minsca
   img_crop = tf.image.resize_with_crop_or_pad(img_crop, size[0], size[1]) 
   height_crop = tf.image.resize_with_crop_or_pad(height_crop, size[0], size[1])
   anno_crop = tf.image.resize_with_crop_or_pad(anno_crop, size[0], size[1])
-  return img_crop, height_crop, anno_crop
+  return img_crop, anno_crop, height_crop, 
 
 #   function ----------------------------------------------------------------
 # ---------------------------------------------------------------------------

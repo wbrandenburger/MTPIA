@@ -11,6 +11,7 @@ import dl_multi.utils.general as glu
 import dl_multi.utils.format
 
 import dl_multi.models.train_multi_task
+import dl_multi.models.train_multi_task_pia
 import dl_multi.models.train_single_task_classification
 import dl_multi.models.train_single_task_regression
 
@@ -66,6 +67,22 @@ def task_train_multi_task():
     )
 
     dl_multi.models.train_multi_task.train(
+        dl_multi.config.settings._SETTINGS["param_info"],
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_batch"],
+        dl_multi.config.settings._SETTINGS["param_save"],      
+        dl_multi.config.settings._SETTINGS["param_train"]
+    )
+
+#   function ----------------------------------------------------------------
+# ---------------------------------------------------------------------------
+def task_train_multi_task_pia():
+    """Call the main routine for training of a multi task model"""
+    dl_multi.config.dl_multi.set_cuda_properties(
+        glu.get_value(dl_multi.config.settings._SETTINGS, "param_cuda", dict())
+    )
+
+    dl_multi.models.train_multi_task_pia.train(
         dl_multi.config.settings._SETTINGS["param_info"],
         dl_multi.config.settings._SETTINGS["param_log"],
         dl_multi.config.settings._SETTINGS["param_batch"],

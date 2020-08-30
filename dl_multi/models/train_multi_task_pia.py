@@ -14,6 +14,7 @@ import dl_multi.utils.general as glu
 
 import tensorflow as tf
 
+import dl_multi.models.tiramisu56
 import dl_multi.archive.augmentation
 
 #   function ----------------------------------------------------------------
@@ -39,31 +40,43 @@ def train(
     
     data_io = dl_multi.tftools.tfrecord.tfrecord(param_train["tfrecord"], param_info, param_train["input"], param_train["output"])
     data = data_io.get_data()
+
+    image_vaihingen = tf.to_float(data[0]) / 127.5 - 1.
+    dsm_vaihingen =  tf.image.per_image_standardization(data[2])
+    annotation_vaihingen = data[1]+1
+
+    image_vaihingen, annotation_vaihingen, dsm_vaihingen = dl_multi.archive.augmentation.rnd_crop_rotate_90_with_flips_height(image_vaihingen, annotation_vaihingen, dsm_vaihingen, [224,224], 0.95, 1.1)
     
-    data = dl_multi.tftools.tfutils.preprocessing(data, param_train["input"], param_train["output"])
-    
-    # data = dl_multi.tftools.tfaugmentation.rnd_crop(data, param_train["image-size"], data_io.get_spec_item_list("channels"), data_io.get_spec_item_list("scale"), **param_train["augmentation"])
-    data = dl_multi.archive.augmentation.rnd_crop_rotate_90_with_flips_height(*data, [224,224], 0.95, 1.1)
-    
-    objectives = dl_multi.tftools.tflosses.Losses(param_train["objective"], logger=_logger, **glu.get_value(param_train, "multi-task", dict()))
-            
     #   execution -----------------------------------------------------------
     # ----------------------------------------------------------------------- 
 
     # Create batches by randomly shuffling tensors. The capacity specifies the maximum of elements in the queue
-    data_batch = tf.train.shuffle_batch(data, **param_batch)
-
-    input_batch = data_batch[0]
-    output_batch = data_batch[1:] if isinstance(data_batch[1:], list) else [data_batch[1:]]
+    image_batch_vaihingen, annotation_batch_vaihingen, dsm_batch_vaihingen = tf.train.shuffle_batch(
+        [image_vaihingen, annotation_vaihingen, dsm_vaihingen],
+        batch_size=2,
+        capacity=64,
+        min_after_dequeue=32,
+        num_threads=16
+    )
 
     with tf.compat.v1.variable_scope("net"):
-        pred = dl_multi.plugin.get_module_task("models", *param_train["model"])(input_batch)
-        pred = list(pred) if isinstance(pred, tuple) else [pred]
+        pred_vaihingen, reg_vaihingen = dl_multi.models.tiramisu56.multi_task_classification_regression(image_batch_vaihingen)
 
-    objectives.update(output_batch, pred)
+    # mask_vaihingen = tf.to_float(tf.squeeze(tf.greater(annotation_batch_vaihingen, 0.)))
+    labels_vaihingen = tf.to_int32(tf.squeeze(tf.maximum(annotation_batch_vaihingen-1, 0), axis=3))
+
+    pred_loss_vaihingen = tf.reduce_mean(tf.compat.v1.losses.compute_weighted_loss(
+        losses = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels_vaihingen, logits=pred_vaihingen)))
+
+                
+    reg_loss_vaihingen = tf.compat.v1.losses.mean_squared_error(dsm_batch_vaihingen, reg_vaihingen)
+
+    task_weight = 0.5
+    loss_vaihingen = task_weight * pred_loss_vaihingen + (1. - task_weight) * reg_loss_vaihingen
+
     update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
-        train_step = tf.contrib.opt.AdamWOptimizer(0).minimize(objectives.get_loss())
+        train_step = tf.contrib.opt.AdamWOptimizer(0).minimize(loss_vaihingen)
 
     #   tfsession -----------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -77,11 +90,13 @@ def train(
     
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
-        
-        # Iteration over epochs
+
         for epoch in saver:
-            stats_epoch, _, = sess.run([objectives.get_stats(), train_step])
-            print(objectives.get_stats_str(epoch._index, stats_epoch))
+        
+            loss_v, loss_v_r, _ = sess.run([ pred_loss_vaihingen, reg_loss_vaihingen, train_step])
+
+            print(loss_v, loss_v_r)
+
             saver.save(sess, checkpoint, step=True)
 
         coord.request_stop()

@@ -163,6 +163,68 @@ def multi_task_classification_regression(vaihingen_batch):
 
   return x_vaihingen_pred1, x_vaihingen_reg1 #, argmax_vaihingen, 
 
+# def multi_task_classification_classification(vaihingen_batch):
+  
+#   concats = []
+  
+#   with tf.compat.v1.variable_scope('encoder'):  
+   
+#     x = tf.layers.conv2d(
+#       inputs=vaihingen_batch,
+#       filters=48,
+#       kernel_size=[3, 3],
+#       padding="same",
+#       kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+#       name='vaihingen_initial_conv')
+    
+#     # downscale
+#     for block in range(5):
+#       dense = dense_block(x, 4, 12, 0.2, name='down_db_'+str(block))
+#       x = tf.concat([x, dense], axis=3, name='down_concat_'+str(block))
+#       concats.append(x)
+#       x = transition_down(x, x.get_shape()[-1], 0.2, name='td_'+str(block))
+    
+#     # bottleneck block
+#     x = dense_block(x, 4, 12, 0.2, name='bottleneck')
+  
+#   with tf.compat.v1.variable_scope('decoder'):
+#     # upscale
+#     for i, block_nb in enumerate(range(5, 1, -1)):
+#       x = transition_up(x, x.get_shape()[-1], name='tu_'+str(block_nb))
+#       x = tf.concat([x, concats[len(concats) - i - 1]], axis=3, name='up_concat_'+str(block_nb))
+#       x = dense_block(x, 4, 12, 0.2, name='up_db_'+str(block_nb))
+      
+#     # separate dense block for etrims and vaihingen
+#     x = transition_up(x, x.get_shape()[-1], name='tu_0')
+#     x = tf.concat([x, concats[len(concats) - 4 - 1]], axis=3, name='up_concat_0')
+    
+#     x_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen')
+#     x2_vaihingen = dense_block(x, 4, 12, 0.2, name='up_db_0_vaihingen_x2')
+      
+#   with tf.compat.v1.variable_scope('prediction_vaihingen_x'):
+    
+#     x_vaihingen_pred1 = tf.layers.conv2d(
+#       inputs=x_vaihingen,
+#       filters=6,#32,
+#       kernel_size=[1, 1],
+#       padding="same",
+#       #activation=tf.nn.relu,
+#       kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+#       name='pred1_conv_vaihingen')
+
+      
+#   with tf.compat.v1.variable_scope('prediction_vaihingen_y'):
+
+#     x_vaihingen_pred2 = tf.layers.conv2d(
+#       inputs=x2_vaihingen,
+#       filters=1,#32,
+#       kernel_size=[1, 1],
+#       padding="same",
+#       # activation=tf.nn.relu,
+#       kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+#       name='pred2_conv_vaihingen')
+      
+#   return x_vaihingen_pred1, x_vaihingen_pred2 #, argmax_vaihingen, 
 
 def single_task_regression(vaihingen_batch):
   

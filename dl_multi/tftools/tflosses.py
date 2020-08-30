@@ -85,14 +85,14 @@ class Losses():
     #   method --------------------------------------------------------------
     # -----------------------------------------------------------------------
     def update_task_classification(self, task, truth, pred, weights):
-        labels = tf.squeeze(tf.maximum(truth[task]-1, 0), axis=3)
+        labels = tf.to_int32(tf.squeeze(tf.maximum(truth[task]-1, 0), axis=3))
         try:
             if len(weights):
                 pass # weights = tf.to_float(tf.squeeze(tf.greater(truth[0], 0.))) without subtracting
         except TypeError:
                 weights = tf.ones(labels.shape, tf.bool)
         self._loss_single_task[task] = tf.reduce_mean(
-            tf.compat.v1.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=tf.to_int32(labels), logits=pred[task]), weights = weights))
+            tf.compat.v1.losses.compute_weighted_loss(losses=self._loss_handle[task](labels=labels, logits=pred[task]), weights = weights))
 
         self._single_task_supp[task] = get_accuracy(labels, pred[task])
 
