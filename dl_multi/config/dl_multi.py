@@ -24,6 +24,5 @@ def set_cuda_properties(param):
 def set_cuda_visible_devices(devices):
     if not devices:
         return
-    
-    print(devices)
+
     os.environ["CUDA_VISIBLE_DEVICES"]=devices
