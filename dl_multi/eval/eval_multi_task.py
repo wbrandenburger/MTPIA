@@ -66,8 +66,8 @@ def eval(
 
         time_obj_img = dl_multi.utils.time.MTime(number=len(img_in), label="IMAGE")
 
-        #   execution -----------------------------------------------------------
-        # -----------------------------------------------------------------------  
+        #   execution -------------------------------------------------------
+        # -------------------------------------------------------------------  
         for item, time_img, eval_img in zip(img_in, time_obj_img, eval_obj):
             img = dl_multi.plugin.get_module_task("tftools", param_eval["input"]["method"], "normalization")(item.spec("image").data, **param_eval["input"]["param"])
             truth = [dl_multi.plugin.get_module_task("tftools", param_eval["output"][task]["method"], "normalization")(imgtools.expand_image_dim(item.spec(param_eval["truth"][task]).data, **param_eval["output"][task]["param"])) for task in range(tasks)]
@@ -93,8 +93,8 @@ def eval(
                 with tf.compat.v1.variable_scope("net", reuse=tf.AUTO_REUSE):
                     pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
 
-                #   tfsession ---------------------------------------------------
-                # ---------------------------------------------------------------
+                #   tfsession ----------------------------------------------
+                # ----------------------------------------------------------
                 # Operation for initializing the variables.
                 init_op = tf.compat.v1.global_variables_initializer()
                 saver = tf.compat.v1.train.Saver()
@@ -106,10 +106,10 @@ def eval(
                     model_out = sess.run([pred])
                     patch.set_patch([model_out[0][0], model_out[0][1]])
                 patch.time() 
-                #   tfsession ---------------------------------------------------
-                # ---------------------------------------------------------------            
-        #   output --------------------------------------------------------------
-        # -----------------------------------------------------------------------
+                #   tfsession ----------------------------------------------
+                # -----------------------------------------------------------            
+        #   output ---------------------------------------------------------
+        # -------------------------------------------------------------------
             label = item.spec(glu.get_value(param_eval, "truth_label", None)).data if glu.get_value(param_eval, "truth_label", None) else None
         
             for task in range(tasks):

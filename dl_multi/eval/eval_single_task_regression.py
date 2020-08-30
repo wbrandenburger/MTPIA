@@ -94,8 +94,8 @@ def eval(
                 with tf.compat.v1.variable_scope("net", reuse=tf.AUTO_REUSE):
                     pred = dl_multi.plugin.get_module_task("models", *param_eval["model"])(data)
 
-                #   tfsession ---------------------------------------------------
-                # ---------------------------------------------------------------
+                #   tfsession -----------------------------------------------
+                # -----------------------------------------------------------
                 # Operation for initializing the variables.
                 init_op = tf.compat.v1.global_variables_initializer()
                 saver = tf.compat.v1.train.Saver()
@@ -108,11 +108,11 @@ def eval(
                     model_out = sess.run([pred])
                     patch.set_patch([model_out[0]]) 
                     patch.time()  
-                #   tfsession ---------------------------------------------------
-                # ---------------------------------------------------------------
+                #   tfsession -----------------------------------------------
+                # -----------------------------------------------------------
 
-        #   output --------------------------------------------------------------
-        # -----------------------------------------------------------------------
+        #   output ----------------------------------------------------------
+        # -------------------------------------------------------------------
             label = item.spec(glu.get_value(param_eval, "truth_label", None)).data if glu.get_value(param_eval, "truth_label", None) else None
         
             for task in range(tasks):
