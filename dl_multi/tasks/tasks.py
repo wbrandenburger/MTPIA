@@ -102,7 +102,8 @@ def task_eval_single_task_classification(setting="training"):
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
-        dl_multi.config.settings._SETTINGS["param_log"],      
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_ckpt"],      
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
         dl_multi.config.settings._SETTINGS["param_classes"]
@@ -120,7 +121,8 @@ def task_eval_single_task_regression(setting="training"):
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
-        dl_multi.config.settings._SETTINGS["param_log"],         
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_ckpt"],
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
         dl_multi.config.settings._SETTINGS["param_classes"]
@@ -138,7 +140,8 @@ def task_eval_multi_task(setting="training"):
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
-        dl_multi.config.settings._SETTINGS["param_log"],      
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_ckpt"],  
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
         dl_multi.config.settings._SETTINGS["param_classes"]
@@ -156,7 +159,8 @@ def task_eval_tasks(setting="training"):
         dl_multi.config.settings.get_data(setting),
         dl_multi.config.settings._SETTINGS["param_specs"],
         dl_multi.config.settings._SETTINGS["param_io"],
-        dl_multi.config.settings._SETTINGS["param_log"],                
+        dl_multi.config.settings._SETTINGS["param_log"],
+        dl_multi.config.settings._SETTINGS["param_ckpt"],            
         dl_multi.config.settings._SETTINGS["param_eval"],
         dl_multi.config.settings._SETTINGS["param_label"],
         dl_multi.config.settings._SETTINGS["param_classes"]

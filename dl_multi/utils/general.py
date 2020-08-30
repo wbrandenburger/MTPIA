@@ -32,7 +32,7 @@ class Folder():
     def __init__(self):
         pass
 
-    def set_folder(self, path_dir, path_name=None, ext=None, parents=True, exist_ok=True):
+    def set_folder(self, path_dir, path_name=None, ext=None, parents=True, exist_ok=True, **kwargs):
         path_dir_list = path_dir if isinstance(path_dir, list) else [path_dir]
 
         path = pathlib.Path(path_dir_list[0])
