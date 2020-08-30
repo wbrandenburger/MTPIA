@@ -71,7 +71,7 @@ def train(
     # Operation for initializing the variables.
     init_op = tf.group(tf.compat.v1.global_variables_initializer(),
                    tf.compat.v1.local_variables_initializer())                
-    saver = dl_multi.tftools.tfsaver.Saver(tf.compat.v1.train.Saver(), **param_save, logger=_logger)
+    saver = dl_multi.tftools.tfsaver.Saver(**param_save, logger=_logger)
     with tf.compat.v1.Session() as sess:
         sess.run(init_op)
     

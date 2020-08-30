@@ -4,7 +4,7 @@
 
 #   import ------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-
+import tensorflow as tf
 #   class -------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 class Saver():
@@ -13,13 +13,14 @@ class Saver():
     # -----------------------------------------------------------------------
     def __init__(
         self, 
-        saver,
-        num_epochs, 
+        num_epochs=100000, 
         iteration=1000, 
         steps=10000,
+        max_to_keep=5,
         logger=None
     ):
-        self._saver = saver
+
+        self._saver = tf.compat.v1.train.Saver(max_to_keep=max_to_keep)
         self._len = num_epochs 
 
         self._iteration = iteration
