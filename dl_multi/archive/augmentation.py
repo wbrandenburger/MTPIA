@@ -165,7 +165,8 @@ def rnd_crop_rotate_90_with_flips_height(image, annotation, height, size, minsca
   
   img_crop = tf.image.resize(img_crop, tf.stack(size), method=tf.image.ResizeMethod.BILINEAR)
   height_crop = tf.image.resize(height_crop, tf.stack(size), method=tf.image.ResizeMethod.BILINEAR)
-  anno_crop = tf.image.resize(anno_crop, tf.stack(size), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+  anno_crop = tf.image.resize(anno_crop, tf.stack(size), method=tf.image.ResizeMethod.BILINEAR)
+  # anno_crop = tf.image.resize(anno_crop, tf.stack(size), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
   
   random_var = tf.random.uniform(maxval=4, dtype=tf.int32, shape=[])  
   if random_var == 1:
